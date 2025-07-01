@@ -1,20 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { Provider, useDispatch } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import jwtDecode from "jwt-decode";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import { fetchSuccess } from "./redux/auth/authSlice";
+import { AppNavigation } from "./navigation/navigation";
+import store from "./redux/store";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const AppInitializer = ({ children }) => {
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const bootstrap = async () => {
+      try {
+        const token = await AsyncStorage.getItem("accessToken");
+        if (token) {
+          const decoded = jwtDecode(token);
+          dispatch(fetchSuccess({ user: decoded, token }));
+        }
+      } catch (err) {
+        console.log("Failed to load token", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    bootstrap();
+  }, []);
+  if (loading) return null;
+  return children;
+};
+
+const AppWithStore = () => (
+  <Provider store={store}>
+    <AppInitializer>
+      <AppNavigation />
+    </AppInitializer>
+  </Provider>
+);
+
+export default AppWithStore;
