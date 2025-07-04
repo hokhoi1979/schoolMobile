@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Provider, useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
-
+import Toast from "react-native-toast-message";
 import { fetchSuccess } from "./redux/auth/authSlice";
 import { AppNavigation } from "./navigation/navigation";
 import store from "./redux/store";
@@ -34,6 +34,7 @@ const AppWithStore = () => (
   <Provider store={store}>
     <AppInitializer>
       <AppNavigation />
+      <Toast />
     </AppInitializer>
   </Provider>
 );

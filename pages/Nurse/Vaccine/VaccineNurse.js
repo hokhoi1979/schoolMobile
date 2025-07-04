@@ -15,25 +15,19 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Dimensions } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
 import { useDispatch, useSelector } from "react-redux";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import logo from "../../../assets/logo.png";
-import { logout } from "../../../redux/auth/authSlice";
 import { FlatList } from "react-native-gesture-handler";
 import { fetchVaccine } from "../../../redux/nurse/vaccine/fetchVaccine/fetchVaccineSlice";
 import bg from "../../../assets/bgheader.jpg";
+import Header from "../../../components/header";
 const VaccineNurse = () => {
   const [store, setStore] = useState([]);
   const dispatch = useDispatch();
   const nav = useNavigation();
   const screenWidth = Dimensions.get("window").width;
-
-  const handleLogout = () => {
-    dispatch(logout());
-    nav.navigate("Login");
-  };
 
   const {
     vaccine = [],
@@ -81,37 +75,7 @@ const VaccineNurse = () => {
 
   return (
     <SafeAreaView>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingLeft: 10,
-          paddingRight: 10,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "25%",
-          }}
-        >
-          <Image source={logo} style={{ width: 40, height: 40 }} />
-          <Text style={{ fontSize: 12, fontWeight: "600" }}>School Health</Text>
-        </View>
-        <Text style={styles.header}>Vaccination</Text>
-        <Pressable
-          onPress={handleLogout}
-          style={{ width: "25%", alignItems: "flex-end", paddingRight: 10 }}
-        >
-          <View>
-            <MaterialIcons name="logout" size={24} color="black" />
-          </View>
-        </Pressable>
-      </View>
-
+      <Header title={"Vaccine Nurse"} />
       <ScrollView contentContainerStyle={styles.container}>
         <Image
           source={bg}
@@ -268,12 +232,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingLeft: 10,
   },
-  header: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    fontFamily: "System",
-  },
+
   statBoxContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
