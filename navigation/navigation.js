@@ -7,23 +7,22 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
-// 👩‍⚕️ Nurse Screens
 import VaccineNurse from "../pages/Nurse/Vaccine/VaccineNurse";
 import MedicalNurse from "../pages/Nurse/Medical/MedicalNurse";
 
-// 👨‍💼 Manager, 👨‍👩‍👧‍👦 Parent, 🧑‍🎓 Student Screens
 // import ManagerMain from "../pages/Manager/ManagerMain"; // Tạo file này
 // import ParentMain from "../pages/Parent/ParentMain";   // Tạo file này
 // import StudentMain from "../pages/Student/StudentMain"; // Tạo file này
 
-// 🔐 Login screen
+//  Login screen
 import Login from "../pages/Login/Login";
 import StudentList from "../pages/Nurse/Vaccine/StudentList";
+import StudentListMedical from "../pages/Nurse/Medical/StudentListMedical";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// 🩺 Tabs cho role NURSE
+// NURSE
 const NurseTabs = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
@@ -55,7 +54,11 @@ const AppNavigation = () => {
           {user?.roleID === 3 && (
             <>
               <Stack.Screen name="NurseMain" component={NurseTabs} />
-              <Stack.Screen name="NurseStudent" component={StudentList} />
+              <Stack.Screen name="vaccineStudent" component={StudentList} />
+              <Stack.Screen
+                name="checkupStudent"
+                component={StudentListMedical}
+              />
             </>
           )}
           {/* {user?.roleID === 2 && (

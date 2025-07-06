@@ -5,6 +5,11 @@ import vaccineStudentReducer from "./nurse/vaccine/fetchVaccineDetail/fetchVacci
 import updateVaccineReducer from "./nurse/vaccine/updateVaccineResult/updateVaccineResultSlice";
 import vaccineResultReducer from "./nurse/vaccine/vaccineResult/vaccineResultSlice";
 import sendResultVaccineReducer from "./nurse/vaccine/sendVaccineResult/sendResultSlice";
+import checkupReducer from "./nurse/checkup/fetchChekup/checkupSlice";
+import studentCheckupReducer from "./nurse/checkup/fetchCheckupDetail/checkupDetailSlice";
+import checkupJoinReducer from "./nurse/checkup/checkupJoin/checkupJoinSlice";
+import postCheckupDetailResultReducer from "./nurse/checkup/sendCheckupDetailResult/sendCheckupDetailResultSlice";
+import fetchCheckupDetailResultReducer from "./nurse/checkup/checkupDetailResult/checkupDetailResultSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
 
@@ -14,5 +19,10 @@ const rootReducer = combineReducers({
   updateVaccine: updateVaccineReducer,
   vaccineResult: vaccineResultReducer,
   sendResultVaccine: sendResultVaccineReducer,
+  checkup: checkupReducer,
+  studentCheckup: studentCheckupReducer,
+  checkupJoin: checkupJoinReducer,
+  postCheckupDetailResult: postCheckupDetailResultReducer,
+  fetchCheckupDetailResult: fetchCheckupDetailResultReducer,
 });
 export default rootReducer;

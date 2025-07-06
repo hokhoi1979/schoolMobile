@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   Alert,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,10 +15,12 @@ import { postResultVaccine } from "../../../redux/nurse/vaccine/sendVaccineResul
 export default function SentParents({ idVaccine }) {
   const dispatch = useDispatch();
   const [store, setStore] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const { result = {} } = useSelector((state) => state.vaccineResult);
 
-  const fetchData = () => {
-    dispatch(fetchVaccineResult(idVaccine));
+  const fetchData = async () => {
+    await dispatch(fetchVaccineResult(idVaccine));
   };
 
   const formatData = () => {
@@ -61,8 +64,22 @@ export default function SentParents({ idVaccine }) {
     );
   };
 
+  const onRefresh = () => {
+    console.log("Pull-to-refresh triggered!");
+    setRefreshing(true);
+    fetchData().finally(() => {
+      setRefreshing(false);
+    });
+  };
+
   return (
-    <View>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View
         style={{
           flexDirection: "row",
@@ -71,18 +88,14 @@ export default function SentParents({ idVaccine }) {
         }}
       >
         <View></View>
-        <Pressable
-          onPress={() => {
-            handlePress();
-          }}
-          style={{}}
-        >
+        <Pressable onPress={handlePress}>
           <View style={styles.button}>
-            <Text style={{ color: "white" }}>Sent to Parent</Text>
+            <Text style={styles.buttonText}>Sent to Parent</Text>
           </View>
         </Pressable>
       </View>
-      <ScrollView horizontal nestedScrollEnabled>
+
+      <ScrollView horizontal style={{ flexGrow: 0 }}>
         <View style={styles.table}>
           <View style={styles.headerRow}>
             <View style={[styles.headerCell, styles.colStudent]}>
@@ -131,8 +144,9 @@ export default function SentParents({ idVaccine }) {
             </View>
           ))}
         </View>
+        <View style={{ height: 100 }} />
       </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -169,14 +183,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 4,
   },
-
-  // Column widths (đảm bảo thẳng hàng)
   colStudent: { width: 120 },
   colParent: { width: 120 },
   colGrade: { width: 80 },
   colNote: { width: 200 },
   colStatus: { width: 80 },
-
   statusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
