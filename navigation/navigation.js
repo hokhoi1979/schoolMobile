@@ -4,12 +4,18 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
 // 👩‍⚕️ Nurse Screens
 import VaccineNurse from "../pages/Nurse/Vaccine/VaccineNurse";
 import MedicalNurse from "../pages/Nurse/Medical/MedicalNurse";
+
+//👨‍👩‍👧‍👦 Parent
+import VaccineParent from "../pages/Parent/Vaccine/VaccineParent";
+import CheckUpParent from "../pages/Parent/CheckUp/CheckUpParent";
 
 // 👨‍💼 Manager, 👨‍👩‍👧‍👦 Parent, 🧑‍🎓 Student Screens
 // import ManagerMain from "../pages/Manager/ManagerMain"; // Tạo file này
@@ -19,6 +25,7 @@ import MedicalNurse from "../pages/Nurse/Medical/MedicalNurse";
 // 🔐 Login screen
 import Login from "../pages/Login/Login";
 import StudentList from "../pages/Nurse/Vaccine/StudentList";
+import CheckUp from "../pages/Parent/CheckUp/CheckUpParent";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -38,6 +45,25 @@ const NurseTabs = () => (
   >
     <Tab.Screen name="Vaccine" component={VaccineNurse} />
     <Tab.Screen name="Medical" component={MedicalNurse} />
+  </Tab.Navigator>
+);
+
+const ParentTabs = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ color, size }) => {
+        if (route.name === "Vaccine")
+          return <MaterialIcons name="vaccines" size={size} color={color} />;
+        else if (route.name === "CheckUp")
+          return (
+            <FontAwesome5 name="notes-medical" size={size} color={color} />
+          );
+      },
+    })}
+  >
+    <Tab.Screen name="Vaccine" component={VaccineParent} />
+    <Tab.Screen name="CheckUp" component={CheckUpParent} />
   </Tab.Navigator>
 );
 
@@ -61,12 +87,16 @@ const AppNavigation = () => {
           {/* {user?.roleID === 2 && (
             <Stack.Screen name="ManagerMain" component={ManagerMain} />
           )}
-          {user?.roleID === 4 && (
-            <Stack.Screen name="ParentMain" component={ParentMain} />
-          )}
+          
           {user?.roleID === 5 && (
             <Stack.Screen name="StudentMain" component={StudentMain} />
           )} */}
+          {user?.roleID === 4 && (
+            <>
+              <Stack.Screen name="ParentMain" component={ParentTabs} />
+              <Stack.Screen name="ParentCheckUp" component={CheckUp} />
+            </>
+          )}
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />
