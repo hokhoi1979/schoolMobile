@@ -26,7 +26,7 @@ function* checkupSaga() {
       yield put(fetchCheckupFail(response.status));
     }
   } catch (error) {
-    yield put(fetchCheckupFail(error));
+    console.log(error);
   }
 }
 

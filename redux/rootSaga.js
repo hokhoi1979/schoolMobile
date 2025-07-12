@@ -10,6 +10,8 @@ import watchFetchStudentCheckup from "./nurse/checkup/fetchCheckupDetail/checkup
 import watchCheckupJoin from "./nurse/checkup/checkupJoin/checkupJoinSaga";
 import watchPostCheckupResult from "./nurse/checkup/sendCheckupDetailResult/sendCheckupDetailResultSaga";
 import watchCheckupDetailResult from "./nurse/checkup/checkupDetailResult/checkupDetailResultSaga";
+import watchFetchCheckupResult from "./nurse/checkup/fetchCheckupResult/resultCheckupSaga";
+import watchSendCheckupParent from "./nurse/checkup/sendCheckupResult/sendCheckupParentSaga";
 // import watchFetchStudentCheckup from "./nurse/checkup/fetchCheckupDetail/CheckupDetailSaga";
 
 export default function* rootSaga() {
@@ -25,5 +27,7 @@ export default function* rootSaga() {
     watchCheckupJoin(),
     watchPostCheckupResult(),
     watchCheckupDetailResult(),
+    watchFetchCheckupResult(),
+    watchSendCheckupParent(),
   ]);
 }
