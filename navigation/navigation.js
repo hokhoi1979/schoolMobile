@@ -9,28 +9,31 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
-// 👩‍⚕️ Nurse Screens
 import VaccineNurse from "../pages/Nurse/Vaccine/VaccineNurse";
 import MedicalNurse from "../pages/Nurse/Medical/MedicalNurse";
 
 //👨‍👩‍👧‍👦 Parent
 import VaccineParent from "../pages/Parent/Vaccine/VaccineParent";
 import CheckUpParent from "../pages/Parent/CheckUp/CheckUpParent";
+import VaccineResultDetail from "../pages/Parent/Vaccine/VaccineResultDetail";
+import CheckUpDetailScreen from "../pages/Parent/CheckUp/CheckUpDetailScreen";
+import CheckUpResultScreen from "../pages/Parent/CheckUp/CheckUpResultScreen";
+// 👨‍💼 Manager, 👨‍👩‍👧‍👦 Parent, 🧑‍🎓 Student Screen
 
-// 👨‍💼 Manager, 👨‍👩‍👧‍👦 Parent, 🧑‍🎓 Student Screens
 // import ManagerMain from "../pages/Manager/ManagerMain"; // Tạo file này
 // import ParentMain from "../pages/Parent/ParentMain";   // Tạo file này
 // import StudentMain from "../pages/Student/StudentMain"; // Tạo file này
 
-// 🔐 Login screen
+//  Login screen
 import Login from "../pages/Login/Login";
 import StudentList from "../pages/Nurse/Vaccine/StudentList";
 import CheckUp from "../pages/Parent/CheckUp/CheckUpParent";
+import StudentListMedical from "../pages/Nurse/Medical/StudentListMedical";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// 🩺 Tabs cho role NURSE
+// NURSE
 const NurseTabs = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
@@ -81,7 +84,11 @@ const AppNavigation = () => {
           {user?.roleID === 3 && (
             <>
               <Stack.Screen name="NurseMain" component={NurseTabs} />
-              <Stack.Screen name="NurseStudent" component={StudentList} />
+              <Stack.Screen name="vaccineStudent" component={StudentList} />
+              <Stack.Screen
+                name="checkupStudent"
+                component={StudentListMedical}
+              />
             </>
           )}
           {/* {user?.roleID === 2 && (
@@ -95,6 +102,18 @@ const AppNavigation = () => {
             <>
               <Stack.Screen name="ParentMain" component={ParentTabs} />
               <Stack.Screen name="ParentCheckUp" component={CheckUp} />
+              <Stack.Screen
+                name="VaccineResultDetail"
+                component={VaccineResultDetail}
+              />
+              <Stack.Screen
+                name="CheckUpDetailScreen"
+                component={CheckUpDetailScreen}
+              />
+              <Stack.Screen
+                name="CheckUpResultScreen"
+                component={CheckUpResultScreen}
+              />
             </>
           )}
         </Stack.Navigator>

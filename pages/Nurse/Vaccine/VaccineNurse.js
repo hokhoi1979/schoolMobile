@@ -2,38 +2,30 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
-  ScrollView,
   StyleSheet,
   ActivityIndicator,
   Image,
   Pressable,
+  RefreshControl,
+  Dimensions,
+  FlatList,
 } from "react-native";
-// import { useDispatch, useSelector } from "react-redux";
-// import { fetchVaccine } from "../../redux/vaccineNurse/vaccine/vaccineSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Dimensions } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useDispatch, useSelector } from "react-redux";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import logo from "../../../assets/logo.png";
-import { logout } from "../../../redux/auth/authSlice";
-import { FlatList } from "react-native-gesture-handler";
 import { fetchVaccine } from "../../../redux/nurse/vaccine/fetchVaccine/fetchVaccineSlice";
 import bg from "../../../assets/bgheader.jpg";
+import Header from "../../../components/header";
+
 const VaccineNurse = () => {
   const [store, setStore] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const dispatch = useDispatch();
   const nav = useNavigation();
   const screenWidth = Dimensions.get("window").width;
-
-  const handleLogout = () => {
-    dispatch(logout());
-    nav.navigate("Login");
-  };
 
   const {
     vaccine = [],
@@ -41,13 +33,19 @@ const VaccineNurse = () => {
     error,
   } = useSelector((state) => state.vaccine);
 
-  const fetchData = () => {
-    dispatch(fetchVaccine());
+  const fetchData = async () => {
+    await dispatch(fetchVaccine());
   };
 
   useEffect(() => {
     fetchData();
   }, [dispatch]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
 
   const formatData = () => {
     if (
@@ -80,57 +78,33 @@ const VaccineNurse = () => {
   }, [vaccine]);
 
   return (
-    <SafeAreaView>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingLeft: 10,
-          paddingRight: 10,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "25%",
-          }}
-        >
-          <Image source={logo} style={{ width: 40, height: 40 }} />
-          <Text style={{ fontSize: 12, fontWeight: "600" }}>School Health</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Header title={"Vaccine Nurse"} />
+      {refreshing ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#000" />
         </View>
-        <Text style={styles.header}>Vaccination</Text>
-        <Pressable
-          onPress={handleLogout}
-          style={{ width: "25%", alignItems: "flex-end", paddingRight: 10 }}
-        >
-          <View>
-            <MaterialIcons name="logout" size={24} color="black" />
-          </View>
-        </Pressable>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.container}>
-        <Image
-          source={bg}
-          style={{
-            width: "100%",
-            height: 200,
-            marginTop: 5,
-            resizeMode: "cover", // hoặc "contain" tùy mục đích
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: 10,
-            paddingRight: 15,
-          }}
-        />
-
+      ) : (
         <FlatList
+          contentContainerStyle={styles.container}
           data={store}
           numColumns={2}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListHeaderComponent={
+            <Image
+              source={bg}
+              style={{
+                width: "100%",
+                height: 200,
+                marginTop: 5,
+                resizeMode: "cover",
+                borderRadius: 10,
+              }}
+            />
+          }
           renderItem={({ item }) => (
             <View
               style={{
@@ -193,7 +167,7 @@ const VaccineNurse = () => {
                 </Text>
 
                 <Text style={{ fontSize: 13, color: "#444", marginBottom: 4 }}>
-                  👨‍👩‍👧 Students :{" "}
+                  👨‍👩‍👧 Students:{" "}
                   <Text style={{ fontWeight: "bold" }}>
                     {item.studentsAcceptCount} / {item.totalStudent}
                   </Text>
@@ -220,13 +194,7 @@ const VaccineNurse = () => {
                     </Text>
                   ))
                 ) : (
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      color: "#aaa",
-                      marginLeft: 6,
-                    }}
-                  >
+                  <Text style={{ fontSize: 13, color: "#aaa", marginLeft: 6 }}>
                     <Text
                       style={{ fontSize: 13, color: "#555", marginLeft: 6 }}
                     >
@@ -238,7 +206,7 @@ const VaccineNurse = () => {
 
               <Pressable
                 onPress={() => {
-                  nav.navigate("NurseStudent", { id: item.id });
+                  nav.navigate("vaccineStudent", { id: item.id });
                 }}
                 style={({ pressed }) => ({
                   marginTop: 10,
@@ -258,7 +226,7 @@ const VaccineNurse = () => {
             </View>
           )}
         />
-      </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -268,12 +236,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingLeft: 10,
   },
-  header: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    fontFamily: "System",
-  },
+
   statBoxContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -31,11 +31,13 @@ function* getCheckUpParentAcceptSaga(action) {
     }
   } catch (error) {
     const errorMessage = error.response?.data?.message || error.message;
-    fetchAcceptCheckUpFail({
-      message: error.message,
-      code: error.code,
-      status: error.response?.status,
-    });
+    yield put(
+      fetchAcceptCheckUpFail({
+        message: errorMessage,
+        code: error.code,
+        status: error.response?.status,
+      })
+    );
   }
 }
 

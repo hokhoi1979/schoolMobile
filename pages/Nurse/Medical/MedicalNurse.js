@@ -2,108 +2,228 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
-  ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Image,
+  Pressable,
+  RefreshControl,
+  Dimensions,
+  FlatList,
 } from "react-native";
-// import { useDispatch, useSelector } from "react-redux";
-// import { fetchVaccine } from "../../redux/vaccineNurse/vaccine/vaccineSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Entypo from "@expo/vector-icons/Entypo";
 
-const MedicalNurse = () => {
-  const [selectedTab, setSelectedTab] = useState("vaccineDay");
-  const [eventCount, setEventCount] = useState(0);
-  //   const dispatch = useDispatch();
-  //   const navigation = useNavigation();
-  //   const {
-  //     vaccine = [],
-  //     loading,
-  //     error,
-  //   } = useSelector((state) => state.vaccine);
+import { fetchVaccine } from "../../../redux/nurse/vaccine/fetchVaccine/fetchVaccineSlice";
+import bg from "../../../assets/bgheader.jpg";
+import Header from "../../../components/header";
+import { fetchCheckup } from "../../../redux/nurse/checkup/fetchChekup/checkupSlice";
 
-  //   useEffect(() => {
-  //     dispatch(fetchVaccine());
-  //   }, [dispatch]);
+const VaccineNurse = () => {
+  const [store, setStore] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  //   useEffect(() => {
-  //     if (
-  //       vaccine?.data?.vaccinationEvents &&
-  //       Array.isArray(vaccine?.data?.vaccinationEvents)
-  //     ) {
-  //       setEventCount(vaccine.data.vaccinationEvents.length);
-  //     }
-  //   }, [vaccine]);
+  const dispatch = useDispatch();
+  const nav = useNavigation();
+  const screenWidth = Dimensions.get("window").width;
 
-  //   const handleTabPress = (tab) => {
-  //     setSelectedTab(tab);
-  //     if (tab === "vaccineHistory") {
-  //       navigation.navigate("VaccineHistoryScreen");
-  //     } else {
-  //       navigation.navigate("VaccineDayScreen");
-  //     }
-  //   };
+  const {
+    medical = [],
+    loading,
+    error,
+  } = useSelector((state) => state.checkup);
+
+  const fetchData = async () => {
+    await dispatch(fetchCheckup());
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [dispatch]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    if (
+      medical?.data?.checkUpEvents &&
+      Array.isArray(medical.data.checkUpEvents)
+    ) {
+      const formatted = medical.data.checkUpEvents.map((event) => ({
+        id: event.id,
+        name: event.title,
+        description: event.description,
+        date: new Date(event.scheduledAt).toLocaleDateString("en-GB"),
+        status: event.status,
+        customMailTitle: event.customMailTitle,
+        customMailBody: event.customMailBody,
+        totalStudent: event?.studentResponseCount?.totalStudent ?? "Unknown",
+        studentsAcceptCount:
+          event?.studentResponseCount.studentsAcceptCount ?? 0,
+        studentsDeclinedCount:
+          event?.studentResponseCount.studentsDeclinedCount ?? 0,
+        studentPendingCount:
+          event?.studentResponseCount.studentPendingCount ?? 0,
+        targets: event.targets ?? [],
+      }));
+      setStore(formatted);
+    }
+  }, [medical]);
 
   return (
-    <SafeAreaView>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.header}>Medical Management</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Header title={"Meical Nurse"} />
 
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              selectedTab === "vaccineDay" && styles.tabButtonActive,
-            ]}
-            //   onPress={() => handleTabPress("vaccineDay")}
+      <FlatList
+        contentContainerStyle={styles.container}
+        data={store}
+        numColumns={2}
+        keyExtractor={(item) => item.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListHeaderComponent={
+          <Image
+            source={bg}
+            style={{
+              width: "100%",
+              height: 200,
+              marginTop: 5,
+              resizeMode: "cover",
+              borderRadius: 10,
+            }}
+          />
+        }
+        renderItem={({ item }) => (
+          <View
+            style={{
+              width: screenWidth / 2 - 24,
+              backgroundColor: "#ffffff",
+              marginVertical: 8,
+              padding: 14,
+              marginHorizontal: 6,
+              borderRadius: 12,
+              elevation: 3,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              flexDirection: "column",
+              justifyContent: "space-between",
+              height: 280,
+            }}
           >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === "vaccineDay" && styles.tabTextActive,
-              ]}
-            >
-              Medical Day
-            </Text>
-          </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: 4,
+                }}
+              >
+                <Text style={{ fontSize: 13, color: "#666" }}>📌 Status: </Text>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    paddingHorizontal: 4,
+                    paddingVertical: 4,
+                    backgroundColor:
+                      item.status === "SUCCESSED" ? "orange" : "#2eab13",
+                    color: "white",
+                    borderRadius: 6,
+                    overflow: "hidden",
+                  }}
+                >
+                  {item.status}
+                </Text>
+              </View>
 
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              selectedTab === "vaccineHistory" && styles.tabButtonActive,
-            ]}
-            //   onPress={() => handleTabPress("vaccineHistory")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === "vaccineHistory" && styles.tabTextActive,
-              ]}
-            >
-              Vaccination History
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  marginBottom: 4,
+                  color: "#333",
+                }}
+              >
+                {item.name}
+              </Text>
 
-        {/* {loading && <ActivityIndicator size="large" color="#007AFF" />} */}
-      </ScrollView>
+              <Text style={{ fontSize: 13, color: "#888", marginBottom: 10 }}>
+                📅 Date: <Text style={{ color: "#444" }}>{item.date}</Text>
+              </Text>
+
+              <Text style={{ fontSize: 13, color: "#444", marginBottom: 4 }}>
+                👨‍👩‍👧 Students:{" "}
+                <Text style={{ fontWeight: "bold" }}>
+                  {item?.studentsAcceptCount} / {item.totalStudent}
+                </Text>
+              </Text>
+
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: "#555",
+                  fontWeight: "bold",
+                  marginTop: 8,
+                  marginBottom: 4,
+                }}
+              >
+                🎯 Target Classes:
+              </Text>
+              {item.targets?.length > 0 ? (
+                item.targets.map((target, index) => (
+                  <Text
+                    key={index}
+                    style={{ fontSize: 13, color: "#555", marginLeft: 6 }}
+                  >
+                    • {target.className} (Grade {target.grade})
+                  </Text>
+                ))
+              ) : (
+                <Text style={{ fontSize: 13, color: "#aaa", marginLeft: 6 }}>
+                  <Text style={{ fontSize: 13, color: "#555", marginLeft: 6 }}>
+                    • School
+                  </Text>
+                </Text>
+              )}
+            </View>
+
+            <Pressable
+              onPress={() => {
+                nav.navigate("checkupStudent", { idCheckup: item.id });
+              }}
+              style={({ pressed }) => ({
+                backgroundColor: pressed ? "gray" : "black",
+                paddingVertical: 6,
+                borderRadius: 10,
+                flexDirection: "row",
+                justifyContent: "center",
+                gap: 5,
+              })}
+            >
+              <Text style={{ color: "white", textAlign: "center" }}>
+                View Detail
+              </Text>
+              <Entypo name="direction" size={18} color="white" />
+            </Pressable>
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
     paddingBottom: 30,
+    paddingLeft: 10,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    fontFamily: "System",
-    textAlign: "center",
-  },
+
   statBoxContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -154,4 +274,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MedicalNurse;
+export default VaccineNurse;

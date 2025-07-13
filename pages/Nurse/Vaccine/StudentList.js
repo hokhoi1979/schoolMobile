@@ -1,18 +1,20 @@
 import {
   View,
   Text,
-  SafeAreaView,
   Image,
   StyleSheet,
   Pressable,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVaccineStudent } from "../../../redux/nurse/vaccine/fetchVaccineDetail/fetchVaccineDetailSLice";
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import bg from "../../../assets/bgheader.jpg";
+import VaccineResult from "./VaccineResult";
+import SentParents from "./SentParents";
 
 export default function StudentList({ route }) {
   const { id } = route.params;
@@ -43,29 +45,29 @@ export default function StudentList({ route }) {
 
         <Image source={bg} style={styles.image} />
       </View>
-      <ScrollView>
-        <View style={styles.tabContainer}>
-          {["StudentList", "Record", "Send"].map((tab) => (
-            <Pressable
-              key={tab}
-              onPress={() => setSelectedTab(tab)}
+
+      <View style={styles.tabContainer}>
+        {["StudentList", "Record", "Send"].map((tab) => (
+          <Pressable
+            key={tab}
+            onPress={() => setSelectedTab(tab)}
+            style={[
+              styles.tabButton,
+              selectedTab === tab && styles.tabButtonActive,
+            ]}
+          >
+            <Text
               style={[
-                styles.tabButton,
-                selectedTab === tab && styles.tabButtonActive,
+                styles.tabText,
+                selectedTab === tab && styles.tabTextActive,
               ]}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  selectedTab === tab && styles.tabTextActive,
-                ]}
-              >
-                {tab}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
+              {tab}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+      <ScrollView>
         {selectedTab === "StudentList" && (
           <>
             <View style={styles.usageContainer}>
@@ -195,16 +197,13 @@ export default function StudentList({ route }) {
         )}
 
         {selectedTab === "Record" && (
-          <Text style={{ margin: 20, fontStyle: "italic" }}>
-            Record content here...
-          </Text>
+          <VaccineResult
+            studentList={student.data?.studentResponseEntity || []}
+            idVaccine={student?.data.id}
+          />
         )}
 
-        {selectedTab === "Send" && (
-          <Text style={{ margin: 20, fontStyle: "italic" }}>
-            Send content here...
-          </Text>
-        )}
+        {selectedTab === "Send" && <SentParents idVaccine={student?.data.id} />}
       </ScrollView>
     </SafeAreaView>
   );
