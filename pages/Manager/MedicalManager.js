@@ -25,7 +25,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { patchManagerConfirmCheckup } from "../../redux/manager/ConfirmMedicalCheckupManager/confirmMedicalCheckupManagerSlice";
 import { fetchClassManager } from "../../redux/manager/ClassManager/getAllClassManagerSlice";
 import { putManagerMedicalCheckup } from "../../redux/manager/UpdateMedicalCheckupManager/updateMedicalCheckupManagerSlice";
-import { ScrollView, TextInput } from "react-native-gesture-handler";
+import {
+  RefreshControl,
+  ScrollView,
+  TextInput,
+} from "react-native-gesture-handler";
 import dayjs from "dayjs";
 import { Button } from "react-native-paper";
 import { Modal } from "react-native";
@@ -36,7 +40,7 @@ const CheckupManager = () => {
   const dispatch = useDispatch();
   const nav = useNavigation();
   const screenWidth = Dimensions.get("window").width;
-
+  const [refreshing, setRefreshing] = useState(false);
   const [store, setStore] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -47,6 +51,7 @@ const CheckupManager = () => {
   const [targetType, setTargetType] = useState("school");
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [selectedGrades, setSelectedGrades] = useState([]);
+  const [errorName, setErrorName] = useState("");
 
   const { checkupManagerList } = useSelector(
     (state) => state?.getAllCheckupManager
@@ -60,6 +65,13 @@ const CheckupManager = () => {
     dispatch(fetchCheckupManager());
   }, [dispatch]);
 
+  const onRefresh = () => {
+    console.log("Pull-to-refresh triggered!");
+    setRefreshing(true);
+    fetchCheckupManager().finally(() => {
+      setRefreshing(false);
+    });
+  };
   useEffect(() => {
     const events = checkupManagerList?.data?.checkUpEntities ?? [];
     if (Array.isArray(events)) {
@@ -251,7 +263,12 @@ const CheckupManager = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{ flex: 1 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Pressable
         onPress={() => nav.navigate("createCheckup")}
         style={{

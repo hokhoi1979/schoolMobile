@@ -25,7 +25,7 @@ import bg from "../../assets/bgheader.jpg";
 import { patchManagerVaccine } from "../../redux/manager/successVaccineManager/successVaccineManagerSlice";
 import { patchManagerConfirmVaccine } from "../../redux/manager/ConfirmVaccineManager/ConfirmVaccineManagerSlice";
 import { deleteManagerVaccine } from "../../redux/manager/DeleteVaccineEvent/deleteVaccineEventSlice";
-import { ScrollView } from "react-native-gesture-handler";
+import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { Button, TextInput } from "react-native-paper";
 import dayjs from "dayjs";
 import { fetchClassManager } from "../../redux/manager/ClassManager/getAllClassManagerSlice";
@@ -40,7 +40,7 @@ const VaccineManager = () => {
 
   const screenWidth = Dimensions.get("window").width;
   const [store, setStore] = useState([]);
-
+  const [refreshing, setRefreshing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [vaccineName, setVaccineName] = useState("");
@@ -51,6 +51,13 @@ const VaccineManager = () => {
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [selectedGrades, setSelectedGrades] = useState([]);
 
+  const onRefresh = () => {
+    console.log("Pull-to-refresh triggered!");
+    setRefreshing(true);
+    fetchVaccineManager().finally(() => {
+      setRefreshing(false);
+    });
+  };
   const classList = useSelector(
     (state) => state.getClassManager?.classManager?.data || []
   );
@@ -277,7 +284,12 @@ const VaccineManager = () => {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{ flex: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Pressable
           onPress={() => {
             console.log("Bấm nút +");
