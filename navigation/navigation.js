@@ -29,6 +29,10 @@ import Login from "../pages/Login/Login";
 import StudentList from "../pages/Nurse/Vaccine/StudentList";
 import CheckUp from "../pages/Parent/CheckUp/CheckUpParent";
 import StudentListMedical from "../pages/Nurse/Medical/StudentListMedical";
+import VaccineManager from "../pages/Manager/VaccineManager";
+import CheckupManager from "../pages/Manager/MedicalManager";
+import ManagerStack from "../pages/Manager/ManagerStack";
+import MedicalStack from "../pages/Manager/MedicalCheckUpManager/MedicalStackScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -48,6 +52,23 @@ const NurseTabs = () => (
   >
     <Tab.Screen name="Vaccine" component={VaccineNurse} />
     <Tab.Screen name="Medical" component={MedicalNurse} />
+  </Tab.Navigator>
+);
+
+const ManagerTabs = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ color, size }) => {
+        if (route.name === "Vaccine")
+          return <MaterialIcons name="vaccines" size={size} color={color} />;
+        else if (route.name === "Checkup")
+          return <Ionicons name="medkit" size={size} color={color} />;
+      },
+    })}
+  >
+    <Tab.Screen name="Vaccine" component={ManagerStack} />
+    <Tab.Screen name="Checkup" component={MedicalStack} />
   </Tab.Navigator>
 );
 
@@ -91,10 +112,14 @@ const AppNavigation = () => {
               />
             </>
           )}
-          {/* {user?.roleID === 2 && (
-            <Stack.Screen name="ManagerMain" component={ManagerMain} />
+          {user?.roleID === 2 && (
+            <Stack.Screen name="ManagerMain" component={ManagerTabs} />
           )}
-          
+
+          {/*     {user?.roleID === 4 && (
+            <Stack.Screen name="ParentMain" component={ParentMain} />
+          )}
+>>>>>>> 53dbef7c4b33e0353308a88ef6f7d6f52ed80280
           {user?.roleID === 5 && (
             <Stack.Screen name="StudentMain" component={StudentMain} />
           )} */}
