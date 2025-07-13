@@ -15,6 +15,7 @@ export function* fetchLogin(action) {
     );
 
     const accessToken = response.data?.data?.backendToken?.accessToken;
+    console.log(response.data.data);
 
     if (accessToken) {
       const decodedUser = jwt_decode(accessToken);
