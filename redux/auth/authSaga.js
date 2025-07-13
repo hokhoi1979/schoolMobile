@@ -3,10 +3,8 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchFail, fetchSuccess, FETCH_API_LOGIN } from "./authSlice";
 import jwt_decode from "jwt-decode";
-
+import Toast from "react-native-toast-message";
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
-console.log("API_URL", API_URL);
 
 export function* fetchLogin(action) {
   try {
@@ -30,10 +28,13 @@ export function* fetchLogin(action) {
           token: accessToken,
         })
       );
+      Toast.show({
+        type: "success",
+        text1: "Login successful!",
+      });
 
       if (action.onSuccess) {
         yield call(action.onSuccess, response);
-        console.log("SUCCESS");
       }
     } else {
       throw new Error("Email or password is not correct! Try again");

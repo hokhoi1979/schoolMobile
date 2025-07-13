@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import bg from "../../../assets/bgheader.jpg";
 import { fetchStudentCheckup } from "../../../redux/nurse/checkup/fetchCheckupDetail/checkupDetailSlice";
 import MedicalResult from "./MedicalResult";
+import SentParentsMedical from "./SentParentsMedical";
 
 export default function StudentListMedical({ route }) {
   const { idCheckup } = route.params;
@@ -260,7 +261,11 @@ export default function StudentListMedical({ route }) {
           </>
         )}
 
-        {selectedTab === "Send" && <></>}
+        {selectedTab === "Send" && (
+          <>
+            <SentParentsMedical idCheckup={idCheckup} />
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

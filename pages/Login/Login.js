@@ -156,12 +156,6 @@ export default function Login() {
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginText}>Login</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Text style={styles.registerText}>
-              You don't have account? Register now!
-            </Text>
-          </TouchableOpacity>
         </View>
 
         <View

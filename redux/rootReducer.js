@@ -22,6 +22,9 @@ import checkupJoinReducer from "./nurse/checkup/checkupJoin/checkupJoinSlice";
 import postCheckupDetailResultReducer from "./nurse/checkup/sendCheckupDetailResult/sendCheckupDetailResultSlice";
 import fetchCheckupDetailResultReducer from "./nurse/checkup/checkupDetailResult/checkupDetailResultSlice";
 
+import checkupResultReducer from "./nurse/checkup/fetchCheckupResult/resultCheckupSlice";
+import sendCheckupParentReducer from "./nurse/checkup/sendCheckupResult/sendCheckupParentSlice";
+
 const rootReducer = combineReducers({
   account: accountReducers,
 
@@ -47,5 +50,7 @@ const rootReducer = combineReducers({
   checkupJoin: checkupJoinReducer,
   postCheckupDetailResult: postCheckupDetailResultReducer,
   fetchCheckupDetailResult: fetchCheckupDetailResultReducer,
+  checkupResult: checkupResultReducer,
+  sendCheckupParent: sendCheckupParentReducer,
 });
 export default rootReducer;

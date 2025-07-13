@@ -15,7 +15,6 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import { fetchVaccine } from "../../../redux/nurse/vaccine/fetchVaccine/fetchVaccineSlice";
 import bg from "../../../assets/bgheader.jpg";
 import Header from "../../../components/header";
 import { fetchCheckup } from "../../../redux/nurse/checkup/fetchChekup/checkupSlice";
