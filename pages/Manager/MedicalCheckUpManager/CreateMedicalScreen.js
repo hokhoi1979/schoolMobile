@@ -131,7 +131,6 @@ const CreateMedicalScreen = ({ navigation }) => {
     };
 
     dispatch(postManagerCheckup(payload));
-    Alert.alert("Success", "Checkup created successfully.");
     navigation.goBack();
   };
 

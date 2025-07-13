@@ -11,6 +11,7 @@ import {
   fetchVaccineManagerFail,
   fetchVaccineManagerSuccess,
 } from "../getAllVaccineManager/getAllVaccineManagerSlice";
+import Toast from "react-native-toast-message";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -32,8 +33,10 @@ function* managerDeleteVaccineSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(deleteManagerSucessVaccine(response.data));
-
-      Alert.alert("Success", "Deleted successfully!");
+      Toast.show({
+        type: "success",
+        text1: "Delete Success",
+      });
 
       const fetchData = yield call(
         axios.get,
@@ -50,7 +53,6 @@ function* managerDeleteVaccineSaga(action) {
         yield put(fetchVaccineManagerSuccess(fetchData.data));
       } else {
         yield put(fetchVaccineManagerFail(fetchData.status));
-        Alert.alert("Error", "Failed to refresh data after delete.");
       }
     } else {
       yield put(deleteMangerFailVaccine(`API ERROR: ${response.data}`));
@@ -59,7 +61,10 @@ function* managerDeleteVaccineSaga(action) {
     const errorMessage =
       error?.response?.data?.message || error?.message || "Unknown error";
     yield put(deleteMangerFailVaccine(errorMessage));
-    Alert.alert("Error", errorMessage);
+    Toast.show({
+      type: "error",
+      text1: errorMessage,
+    });
   }
 }
 

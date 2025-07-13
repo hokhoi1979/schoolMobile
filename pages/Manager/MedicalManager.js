@@ -65,13 +65,17 @@ const CheckupManager = () => {
     dispatch(fetchCheckupManager());
   }, [dispatch]);
 
-  const onRefresh = () => {
-    console.log("Pull-to-refresh triggered!");
+  const onRefresh = async () => {
     setRefreshing(true);
-    fetchCheckupManager().finally(() => {
+    try {
+      await dispatch(fetchCheckupManager());
+    } catch (err) {
+      console.error("Refresh failed", err);
+    } finally {
       setRefreshing(false);
-    });
+    }
   };
+
   useEffect(() => {
     const events = checkupManagerList?.data?.checkUpEntities ?? [];
     if (Array.isArray(events)) {
@@ -263,12 +267,7 @@ const CheckupManager = () => {
   );
 
   return (
-    <SafeAreaView
-      style={{ flex: 1 }}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
+    <SafeAreaView style={{ flex: 1 }}>
       <Pressable
         onPress={() => nav.navigate("createCheckup")}
         style={{
@@ -305,6 +304,9 @@ const CheckupManager = () => {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.container}
         renderItem={renderItem}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
 
       <Modal visible={isEditing} animationType="slide">

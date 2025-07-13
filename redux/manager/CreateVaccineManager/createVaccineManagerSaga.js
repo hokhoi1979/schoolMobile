@@ -9,6 +9,7 @@ import {
   fetchVaccineManagerFail,
   fetchVaccineManagerSuccess,
 } from "../getAllVaccineManager/getAllVaccineManagerSlice";
+import Toast from "react-native-toast-message";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -29,8 +30,11 @@ function* managerVaccineSaga(action) {
     );
 
     if (response.status === 200 || response.status === 201) {
-      console.log("DUCC", response.data);
       yield put(postManagerSucessVaccine(response.data));
+      Toast.show({
+        type: "success",
+        text1: "Create Vaccine Success",
+      });
       const fetchData = yield call(
         axios.get,
         `${API_URL}/manager/v1/vaccinationEvent`,
@@ -44,7 +48,6 @@ function* managerVaccineSaga(action) {
 
       if (fetchData.status === 200 || fetchData.status === 201) {
         yield put(fetchVaccineManagerSuccess(fetchData.data));
-        // toast.success("Create Vaccine Success");
       } else {
         yield put(fetchVaccineManagerFail(fetchData.status));
         // toast.error("Create Vaccine Fail ");
@@ -57,7 +60,10 @@ function* managerVaccineSaga(action) {
       error?.response?.data?.message || error?.message || "Đã có lỗi xảy ra";
     // toast.error(`Create Vaccine Fail: ${errorMessage}`);
     yield put(postMangerFailVaccine(errorMessage));
-    console.error("Create Vaccine Error:", error);
+    Toast.show({
+      type: "error",
+      text1: errorMessage,
+    });
   }
 }
 function* watchPostManagerVaccine() {

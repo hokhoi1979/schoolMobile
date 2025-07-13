@@ -33,6 +33,10 @@ function* managerCheckupSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(postManagerSuccessCheckup(response.data));
+      Toast.show({
+        type: "success",
+        text1: "Create Check Up Success",
+      });
 
       const fecthData = yield call(
         axios.get,
@@ -52,7 +56,6 @@ function* managerCheckupSaga(action) {
       }
     } else {
       yield put(postManagerFailCheckup(`API ERROR: ${response.status}`));
-      Toast.error(response.data.message);
     }
   } catch (error) {
     yield put(postManagerFailCheckup(`API ERROR: ${error}`));
@@ -61,7 +64,10 @@ function* managerCheckupSaga(action) {
       error.response?.data?.message ||
       error.message ||
       "Đã xảy ra lỗi. Vui lòng thử lại.";
-    Toast.error(message);
+    Toast.show({
+      type: "error",
+      text1: message,
+    });
   }
 }
 

@@ -19,6 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RadioButton } from "react-native-paper";
 import { fetchTotalStudent } from "../../redux/manager/GetTotalStudent/getTotalStudentSlice";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const CreateVaccineScreen = () => {
   const dispatch = useDispatch();
@@ -80,7 +81,6 @@ const CreateVaccineScreen = () => {
 
     try {
       await dispatch(postManagerVaccine(payload));
-      Alert.alert("Success", "Vaccination event created successfully");
       nav.goBack();
     } catch (err) {
       Alert.alert("Error", "Failed to create vaccination event");
@@ -125,272 +125,282 @@ const CreateVaccineScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
-      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>
-        New Vaccine Event
-      </Text>
-
-      <Text>Name</Text>
-      <TextInput
-        value={vaccineName}
-        onChangeText={setVaccineName}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 12 }}
-      />
-
-      <Text>Description</Text>
-      <TextInput
-        value={vaccineDescription}
-        onChangeText={setVaccineDescription}
-        multiline
-        style={{ borderWidth: 1, padding: 8, marginBottom: 12, height: 80 }}
-      />
-
-      <Text>Date</Text>
-      <TouchableOpacity
-        onPress={() => setShowDatePicker(true)}
-        style={{
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 6,
-          marginBottom: 12,
-          backgroundColor: "#fff",
-        }}
-      >
-        <Text>{dayjs(vaccineDate).format("YYYY-MM-DD")}</Text>
-      </TouchableOpacity>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={vaccineDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) {
-              setVaccineDate(selectedDate);
-            }
-          }}
-        />
-      )}
-
-      <Text>Target Type</Text>
-      <RadioButton.Group onValueChange={setTargetType} value={targetType}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <RadioButton value="school" />
-          <Text>School</Text>
-          <RadioButton value="class" />
-          <Text>Class</Text>
-          <RadioButton value="grade" />
-          <Text>Grade</Text>
-        </View>
-      </RadioButton.Group>
-      {targetType === "school" && (
-        <Text style={{ marginBottom: 12, fontStyle: "italic", color: "green" }}>
-          Total students in school: {totalStudents}
+    <SafeAreaView>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>
+          New Vaccine Event
         </Text>
-      )}
 
-      {targetType === "class" && (
-        <View style={{ marginBottom: 12 }}>
-          <Text>Select Classes:</Text>
-          {classList.map((cls) => (
-            <TouchableOpacity
-              key={cls.id}
-              onPress={() => toggleClassSelection(cls.name)}
-              style={{ padding: 6 }}
-            >
-              <Text
-                style={{
-                  color: selectedClasses.includes(cls.name) ? "blue" : "black",
-                }}
-              >
-                {cls.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          {selectedClasses.length > 0 && (
-            <Text
-              style={{
-                marginTop: 8,
-                fontStyle: "italic",
-                color: "green",
-              }}
-            >
-              Total selected students: {totalStudents}
-            </Text>
-          )}
-        </View>
-      )}
+        <Text>Name</Text>
+        <TextInput
+          value={vaccineName}
+          onChangeText={setVaccineName}
+          style={{ borderWidth: 1, padding: 8, marginBottom: 12 }}
+        />
 
-      {targetType === "grade" && (
-        <View style={{ marginBottom: 12 }}>
-          <Text>Select Grades:</Text>
-          {availableGrades.map((g) => (
-            <TouchableOpacity
-              key={g}
-              onPress={() => toggleGradeSelection(g)}
-              style={{ padding: 6 }}
-            >
-              <Text
-                style={{ color: selectedGrades.includes(g) ? "blue" : "black" }}
-              >
-                Grade {g}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          {selectedGrades.length > 0 && (
-            <Text
-              style={{
-                marginTop: 8,
-                fontStyle: "italic",
-                color: "green",
-              }}
-            >
-              Total selected students: {totalStudents}
-            </Text>
-          )}
-        </View>
-      )}
+        <Text>Description</Text>
+        <TextInput
+          value={vaccineDescription}
+          onChangeText={setVaccineDescription}
+          multiline
+          style={{ borderWidth: 1, padding: 8, marginBottom: 12, height: 80 }}
+        />
 
-      <View style={{ marginTop: 16 }}>
-        <Text style={{ fontWeight: "bold" }}>Medicine</Text>
+        <Text>Date</Text>
         <TouchableOpacity
-          onPress={() =>
-            setItems([
-              ...items,
-              {
-                medicineID: null,
-                medicineSupplyID: null,
-                quantityPlanned: 1,
-                notes: "",
-              },
-            ])
-          }
+          onPress={() => setShowDatePicker(true)}
           style={{
-            backgroundColor: "#eee",
-            padding: 8,
-            marginVertical: 8,
-            borderRadius: 4,
+            borderWidth: 1,
+            padding: 10,
+            borderRadius: 6,
+            marginBottom: 12,
+            backgroundColor: "#fff",
           }}
         >
-          <Text>Add Item</Text>
+          <Text>{dayjs(vaccineDate).format("YYYY-MM-DD")}</Text>
         </TouchableOpacity>
 
-        {items.map((item, idx) => (
-          <View
-            key={idx}
-            style={{ borderWidth: 1, padding: 8, marginBottom: 8 }}
-          >
-            <Text>#{idx + 1}</Text>
-            <Text>Medicine</Text>
-            <ScrollView horizontal>
-              {medicineSupply
-                .filter((m) => m.type === "medicine")
-                .map((med) => (
-                  <TouchableOpacity
-                    key={`med-${med.id}`}
-                    onPress={() => {
-                      const updated = [...items];
-                      updated[idx].medicineID = med.id;
-                      updated[idx].medicineSupplyID = null;
-                      setItems(updated);
-                    }}
-                    style={{
-                      padding: 6,
-                      marginRight: 6,
-                      backgroundColor:
-                        med.id === item.medicineID ? "#1890ff" : "#f5f5f5",
-                      borderRadius: 4,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: med.id === item.medicineID ? "white" : "black",
-                      }}
-                    >
-                      {med.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-            </ScrollView>
+        {showDatePicker && (
+          <DateTimePicker
+            value={vaccineDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) {
+                setVaccineDate(selectedDate);
+              }
+            }}
+          />
+        )}
 
-            <Text>Supply</Text>
-            <ScrollView horizontal>
-              {medicineSupply
-                .filter((m) => m.type === "supply")
-                .map((med) => (
-                  <TouchableOpacity
-                    key={`sup-${med.id}`}
-                    onPress={() => {
-                      const updated = [...items];
-                      updated[idx].medicineSupplyID = med.id;
-                      updated[idx].medicineID = null;
-                      setItems(updated);
-                    }}
-                    style={{
-                      padding: 6,
-                      marginRight: 6,
-                      backgroundColor:
-                        med.id === item.medicineSupplyID
-                          ? "#52c41a"
-                          : "#f5f5f5",
-                      borderRadius: 4,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color:
-                          med.id === item.medicineSupplyID ? "white" : "black",
-                      }}
-                    >
-                      {med.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-            </ScrollView>
-
-            <Text>Quantity</Text>
-            <TextInput
-              keyboardType="numeric"
-              value={String(item.quantityPlanned)}
-              onChangeText={(val) => {
-                const updated = [...items];
-                updated[idx].quantityPlanned = parseInt(val) || 1;
-                setItems(updated);
-              }}
-              style={{ borderWidth: 1, padding: 6, marginBottom: 6 }}
-            />
-
-            <Text>Notes</Text>
-            <TextInput
-              value={item.notes}
-              onChangeText={(val) => {
-                const updated = [...items];
-                updated[idx].notes = val;
-                setItems(updated);
-              }}
-              style={{ borderWidth: 1, padding: 6 }}
-            />
+        <Text>Target Type</Text>
+        <RadioButton.Group onValueChange={setTargetType} value={targetType}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <RadioButton value="school" />
+            <Text>School</Text>
+            <RadioButton value="class" />
+            <Text>Class</Text>
+            <RadioButton value="grade" />
+            <Text>Grade</Text>
           </View>
-        ))}
-      </View>
+        </RadioButton.Group>
+        {targetType === "school" && (
+          <Text
+            style={{ marginBottom: 12, fontStyle: "italic", color: "green" }}
+          >
+            Total students in school: {totalStudents}
+          </Text>
+        )}
 
-      <TouchableOpacity
-        onPress={handleCreate}
-        style={{
-          marginTop: 24,
-          backgroundColor: "#1890ff",
-          padding: 16,
-          borderRadius: 8,
-        }}
-      >
-        <Text
-          style={{ color: "white", textAlign: "center", fontWeight: "bold" }}
+        {targetType === "class" && (
+          <View style={{ marginBottom: 12 }}>
+            <Text>Select Classes:</Text>
+            {classList.map((cls) => (
+              <TouchableOpacity
+                key={cls.id}
+                onPress={() => toggleClassSelection(cls.name)}
+                style={{ padding: 6 }}
+              >
+                <Text
+                  style={{
+                    color: selectedClasses.includes(cls.name)
+                      ? "blue"
+                      : "black",
+                  }}
+                >
+                  {cls.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {selectedClasses.length > 0 && (
+              <Text
+                style={{
+                  marginTop: 8,
+                  fontStyle: "italic",
+                  color: "green",
+                }}
+              >
+                Total selected students: {totalStudents}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {targetType === "grade" && (
+          <View style={{ marginBottom: 12 }}>
+            <Text>Select Grades:</Text>
+            {availableGrades.map((g) => (
+              <TouchableOpacity
+                key={g}
+                onPress={() => toggleGradeSelection(g)}
+                style={{ padding: 6 }}
+              >
+                <Text
+                  style={{
+                    color: selectedGrades.includes(g) ? "blue" : "black",
+                  }}
+                >
+                  Grade {g}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {selectedGrades.length > 0 && (
+              <Text
+                style={{
+                  marginTop: 8,
+                  fontStyle: "italic",
+                  color: "green",
+                }}
+              >
+                Total selected students: {totalStudents}
+              </Text>
+            )}
+          </View>
+        )}
+
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ fontWeight: "bold" }}>Medicine</Text>
+          <TouchableOpacity
+            onPress={() =>
+              setItems([
+                ...items,
+                {
+                  medicineID: null,
+                  medicineSupplyID: null,
+                  quantityPlanned: 1,
+                  notes: "",
+                },
+              ])
+            }
+            style={{
+              backgroundColor: "#eee",
+              padding: 8,
+              marginVertical: 8,
+              borderRadius: 4,
+            }}
+          >
+            <Text>Add Item</Text>
+          </TouchableOpacity>
+
+          {items.map((item, idx) => (
+            <View
+              key={idx}
+              style={{ borderWidth: 1, padding: 8, marginBottom: 8 }}
+            >
+              <Text>#{idx + 1}</Text>
+              <Text>Medicine</Text>
+              <ScrollView horizontal>
+                {medicineSupply
+                  .filter((m) => m.type === "medicine")
+                  .map((med) => (
+                    <TouchableOpacity
+                      key={`med-${med.id}`}
+                      onPress={() => {
+                        const updated = [...items];
+                        updated[idx].medicineID = med.id;
+                        updated[idx].medicineSupplyID = null;
+                        setItems(updated);
+                      }}
+                      style={{
+                        padding: 6,
+                        marginRight: 6,
+                        backgroundColor:
+                          med.id === item.medicineID ? "#1890ff" : "#f5f5f5",
+                        borderRadius: 4,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: med.id === item.medicineID ? "white" : "black",
+                        }}
+                      >
+                        {med.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+              </ScrollView>
+
+              <Text>Supply</Text>
+              <ScrollView horizontal>
+                {medicineSupply
+                  .filter((m) => m.type === "supply")
+                  .map((med) => (
+                    <TouchableOpacity
+                      key={`sup-${med.id}`}
+                      onPress={() => {
+                        const updated = [...items];
+                        updated[idx].medicineSupplyID = med.id;
+                        updated[idx].medicineID = null;
+                        setItems(updated);
+                      }}
+                      style={{
+                        padding: 6,
+                        marginRight: 6,
+                        backgroundColor:
+                          med.id === item.medicineSupplyID
+                            ? "#52c41a"
+                            : "#f5f5f5",
+                        borderRadius: 4,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color:
+                            med.id === item.medicineSupplyID
+                              ? "white"
+                              : "black",
+                        }}
+                      >
+                        {med.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+              </ScrollView>
+
+              <Text>Quantity</Text>
+              <TextInput
+                keyboardType="numeric"
+                value={String(item.quantityPlanned)}
+                onChangeText={(val) => {
+                  const updated = [...items];
+                  updated[idx].quantityPlanned = parseInt(val) || 1;
+                  setItems(updated);
+                }}
+                style={{ borderWidth: 1, padding: 6, marginBottom: 6 }}
+              />
+
+              <Text>Notes</Text>
+              <TextInput
+                value={item.notes}
+                onChangeText={(val) => {
+                  const updated = [...items];
+                  updated[idx].notes = val;
+                  setItems(updated);
+                }}
+                style={{ borderWidth: 1, padding: 6 }}
+              />
+            </View>
+          ))}
+        </View>
+
+        <TouchableOpacity
+          onPress={handleCreate}
+          style={{
+            marginTop: 24,
+            backgroundColor: "#1890ff",
+            padding: 16,
+            borderRadius: 8,
+          }}
         >
-          Create
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <Text
+            style={{ color: "white", textAlign: "center", fontWeight: "bold" }}
+          >
+            Create
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

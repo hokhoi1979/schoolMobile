@@ -32,7 +32,10 @@ function* managerDeleteMedicalCheckupSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(deleteManagerMedicalCheckupSuccess(response.data));
-      Toast.success("Delete Success");
+      Toast.show({
+        type: "success",
+        text1: "Delete Success",
+      });
 
       const fecthData = yield call(
         axios.get,
@@ -52,7 +55,6 @@ function* managerDeleteMedicalCheckupSaga(action) {
       }
     } else {
       yield put(deleteManagerMedicalCheckupFail(`API ERROR: ${response.data}`));
-      Toast.error("Delete Fail");
     }
   } catch (error) {
     yield put(
@@ -60,7 +62,10 @@ function* managerDeleteMedicalCheckupSaga(action) {
         error?.response?.data?.message || error.message || "Unknown error"
       )
     );
-    Toast.error("Đã xảy ra lỗi khi xóa nội dung kiểm tra");
+    Toast.show({
+      type: "error",
+      text1: "Delete Fail",
+    });
   }
 }
 

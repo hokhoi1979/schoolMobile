@@ -16,23 +16,25 @@ import { fetchVaccineManager } from "../../redux/manager/getAllVaccineManager/ge
 import { useNavigation } from "@react-navigation/native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Entypo from "@expo/vector-icons/Entypo";
 import { logout } from "../../redux/auth/authSlice";
-import { CommonActions } from "@react-navigation/native";
 
 import logo from "../../assets/logo.png";
 import bg from "../../assets/bgheader.jpg";
 import { patchManagerVaccine } from "../../redux/manager/successVaccineManager/successVaccineManagerSlice";
 import { patchManagerConfirmVaccine } from "../../redux/manager/ConfirmVaccineManager/ConfirmVaccineManagerSlice";
 import { deleteManagerVaccine } from "../../redux/manager/DeleteVaccineEvent/deleteVaccineEventSlice";
-import { RefreshControl, ScrollView } from "react-native-gesture-handler";
-import { Button, TextInput } from "react-native-paper";
+import {
+  RefreshControl,
+  ScrollView,
+  TextInput,
+} from "react-native-gesture-handler";
 import dayjs from "dayjs";
 import { fetchClassManager } from "../../redux/manager/ClassManager/getAllClassManagerSlice";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { putManagerMedical } from "../../redux/manager/UpdataVaccineManager/updateVaccineManagerSlice";
 import { Modal } from "react-native";
 import { fetchTotalStudent } from "../../redux/manager/GetTotalStudent/getTotalStudentSlice";
+import { Button } from "react-native-paper";
 
 const VaccineManager = () => {
   const dispatch = useDispatch();
@@ -51,13 +53,17 @@ const VaccineManager = () => {
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [selectedGrades, setSelectedGrades] = useState([]);
 
-  const onRefresh = () => {
-    console.log("Pull-to-refresh triggered!");
+  const onRefresh = async () => {
     setRefreshing(true);
-    fetchVaccineManager().finally(() => {
+    try {
+      await dispatch(fetchVaccineManager());
+    } catch (err) {
+      console.error("Refresh failed", err);
+    } finally {
       setRefreshing(false);
-    });
+    }
   };
+
   const classList = useSelector(
     (state) => state.getClassManager?.classManager?.data || []
   );
@@ -284,12 +290,7 @@ const VaccineManager = () => {
 
   return (
     <>
-      <SafeAreaView
-        style={{ flex: 1 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+      <SafeAreaView style={{ flex: 1 }}>
         <Pressable
           onPress={() => {
             console.log("Bấm nút +");
@@ -335,6 +336,9 @@ const VaccineManager = () => {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.container}
           renderItem={renderItem}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
         <Modal visible={isEditing} animationType="slide">
           <SafeAreaView style={{ flex: 1 }}>

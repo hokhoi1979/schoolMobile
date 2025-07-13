@@ -37,8 +37,10 @@ function* patchVaccineConfirmManagerSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(patchManagerSucessConfirmVaccine(response.data));
-      //   toast.success("Confirm Success");
-      console.log("Create Success", response);
+      Toast.show({
+        type: "success",
+        text1: "Confirm Success",
+      });
 
       const fetchData = yield call(
         axios.get,
@@ -52,23 +54,25 @@ function* patchVaccineConfirmManagerSaga(action) {
       );
 
       if (fetchData.status === 200 || fetchData.status === 201) {
-        console.log("DUCC", fetchData.data);
-
         yield put(fetchVaccineManagerSuccess(fetchData.data));
       } else {
         yield put(fetchVaccineManagerFail(fetchData.status));
       }
     } else {
       yield put(patchMangerFailConfirmVaccine(response.status));
-      toast.error("Confirm Error");
+      Toast.show({
+        type: "error",
+        text1: "Confirm Fail",
+      });
     }
   } catch (error) {
     const errorMessage =
       error?.response?.data?.message || error?.message || "Đã có lỗi xảy ra";
-    // toast.error(`Confirm Vaccine Fail: ${errorMessage}`);
-    console.log(errorMessage);
+    Toast.show({
+      type: "error",
+      text1: errorMessage,
+    });
     yield put(patchMangerFailConfirmVaccine(errorMessage));
-    console.error("Confirm Vaccine Error:", error);
   }
 }
 
