@@ -15,6 +15,7 @@ import {
   patchManagerSucessVaccine,
   patchMangerFailVaccine,
 } from "./successVaccineManagerSlice";
+import Toast from "react-native-toast-message";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -38,9 +39,14 @@ function* patchVaccineManagerSaga(action) {
     if (response.status === 200 || response.status === 201) {
       console.log("DUCC", response.data);
       yield put(patchManagerSucessVaccine(response.data));
+
+      Toast.show({
+        type: "success",
+        text1: "End Event Success",
+      });
       const fetchData = yield call(
         axios.get,
-        `${URL_API}/manager/v1/vaccinationEvent`,
+        `${API_URL}/manager/v1/vaccinationEvent`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,6 +70,12 @@ function* patchVaccineManagerSaga(action) {
     console.log(errorMessage);
     yield put(patchMangerFailVaccine(errorMessage));
     console.error("Create Vaccine Error:", error);
+
+    Toast.show({
+      type: "error",
+      text1: "End Event Fail",
+      text2: errorMessage,
+    });
   }
 }
 

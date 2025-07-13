@@ -155,8 +155,15 @@ const CreateMedicalScreen = ({ navigation }) => {
   }, [targetType, selectedClasses, selectedGrades]);
 
   return (
-    <ScrollView style={{ padding: 16 }}>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+    <ScrollView style={{ padding: 16, marginTop: 20 }}>
+      <Text
+        style={{
+          fontSize: 24,
+          fontWeight: "bold",
+          marginBottom: 16,
+          textAlign: "center",
+        }}
+      >
         Create Medical Checkup
       </Text>
 

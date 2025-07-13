@@ -9,6 +9,7 @@ import {
   fetchCheckupManagerFail,
   fetchCheckupManagerSuccess,
 } from "../GetAllMedicalCheckUpManager/getAllCheckUpManagerSlice";
+import Toast from "react-native-toast-message";
 
 const URL_API = process.env.EXPO_PUBLIC_API_URL;
 
@@ -31,6 +32,12 @@ function* updateMedicalCheckupManagerSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(putManagerSuccessMedicalCheckup(response.data));
+
+      Toast.show({
+        type: "success",
+        text1: "Cập nhật thành công",
+        text2: "Thông tin checkup đã được cập nhật ",
+      });
       const fectch = yield call(axios.get, `${URL_API}/manager/v1/check-up`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -51,6 +58,11 @@ function* updateMedicalCheckupManagerSaga(action) {
       error?.response?.data?.message || error?.message || "Đã có lỗi xảy ra";
     yield put(putManagerFailMedicalCheckup(errorMessage));
     console.error("Update Checkup Error:", errorMessage);
+    Toast.show({
+      type: "error",
+      text1: "Cập nhật thất bại",
+      text2: errorMessage,
+    });
   }
 }
 

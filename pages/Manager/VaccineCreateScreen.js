@@ -18,6 +18,7 @@ import { postManagerVaccine } from "../../redux/manager/CreateVaccineManager/cre
 import { useNavigation } from "@react-navigation/native";
 import { RadioButton } from "react-native-paper";
 import { fetchTotalStudent } from "../../redux/manager/GetTotalStudent/getTotalStudentSlice";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const CreateVaccineScreen = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ const CreateVaccineScreen = () => {
 
   const [vaccineName, setVaccineName] = useState("");
   const [vaccineDescription, setVaccineDescription] = useState("");
-  const [vaccineDate, setVaccineDate] = useState("");
+  const [vaccineDate, setVaccineDate] = useState(new Date());
   const [targetType, setTargetType] = useState("school");
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [selectedGrades, setSelectedGrades] = useState([]);
@@ -121,6 +122,8 @@ const CreateVaccineScreen = () => {
       dispatch(fetchTotalStudent({ targetType: "GRADE", targetIds: gradeIds }));
     }
   }, [targetType, selectedClasses, selectedGrades]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   return (
     <ScrollView contentContainerStyle={{ padding: 16 }}>
       <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>
@@ -143,12 +146,32 @@ const CreateVaccineScreen = () => {
       />
 
       <Text>Date</Text>
-      <TextInput
-        value={vaccineDate}
-        onChangeText={setVaccineDate}
-        placeholder="YYYY-MM-DD"
-        style={{ borderWidth: 1, padding: 8, marginBottom: 12 }}
-      />
+      <TouchableOpacity
+        onPress={() => setShowDatePicker(true)}
+        style={{
+          borderWidth: 1,
+          padding: 10,
+          borderRadius: 6,
+          marginBottom: 12,
+          backgroundColor: "#fff",
+        }}
+      >
+        <Text>{dayjs(vaccineDate).format("YYYY-MM-DD")}</Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={vaccineDate}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(false);
+            if (selectedDate) {
+              setVaccineDate(selectedDate);
+            }
+          }}
+        />
+      )}
 
       <Text>Target Type</Text>
       <RadioButton.Group onValueChange={setTargetType} value={targetType}>

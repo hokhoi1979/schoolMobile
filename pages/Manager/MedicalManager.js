@@ -23,12 +23,15 @@ import bg from "../../assets/bgheader.jpg";
 import { fetchCheckupManager } from "../../redux/manager/GetAllMedicalCheckUpManager/getAllCheckUpManagerSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { patchManagerConfirmCheckup } from "../../redux/manager/ConfirmMedicalCheckupManager/confirmMedicalCheckupManagerSlice";
-import { deleteManagerMedicalCheckup } from "../../redux/manager/DeleteMedicalCheckupManager copy/deleteMedicalCheckupManagerSlice";
 import { fetchClassManager } from "../../redux/manager/ClassManager/getAllClassManagerSlice";
 import { putManagerMedicalCheckup } from "../../redux/manager/UpdateMedicalCheckupManager/updateMedicalCheckupManagerSlice";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import dayjs from "dayjs";
 import { Button } from "react-native-paper";
+import { Modal } from "react-native";
+import { deleteManagerMedicalCheckup } from "../../redux/manager/DeleteMedicalCheckupManager/deleteMedicalCheckupManagerSlice";
+import { fetchTotalStudent } from "../../redux/manager/GetTotalStudent/getTotalStudentSlice";
+import { patchManagerEndMedicalCheckup } from "../../redux/manager/EndEventMedicalCheckUpManager/endEventMedicalCheckUpManagerSlice";
 const CheckupManager = () => {
   const dispatch = useDispatch();
   const nav = useNavigation();
@@ -46,10 +49,10 @@ const CheckupManager = () => {
   const [selectedGrades, setSelectedGrades] = useState([]);
 
   const { checkupManagerList } = useSelector(
-    (state) => state.getAllCheckupManager
+    (state) => state?.getAllCheckupManager
   );
   const classList = useSelector(
-    (state) => state.getClassManager.classManager.data || []
+    (state) => state?.getClassManager?.classManager?.data || []
   );
 
   useEffect(() => {
@@ -155,7 +158,24 @@ const CheckupManager = () => {
     dispatch(fetchCheckupManager());
     setIsEditing(false);
   };
+  const totalStudents = useSelector(
+    (state) => state.getTotalStudent?.totalStudents ?? 0
+  );
 
+  useEffect(() => {
+    if (targetType === "school") {
+      dispatch(fetchTotalStudent({ targetType: "SCHOOL", targetIds: [] }));
+    } else if (targetType === "class" && selectedClasses.length > 0) {
+      const classIds = classList
+        .filter((cls) => selectedClasses.includes(cls.name))
+        .map((cls) => String(cls.id));
+
+      dispatch(fetchTotalStudent({ targetType: "CLASS", targetIds: classIds }));
+    } else if (targetType === "grade" && selectedGrades.length > 0) {
+      const gradeIds = selectedGrades.map(String);
+      dispatch(fetchTotalStudent({ targetType: "GRADE", targetIds: gradeIds }));
+    }
+  }, [targetType, selectedClasses, selectedGrades]);
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
@@ -197,7 +217,7 @@ const CheckupManager = () => {
         )}
       </View>
 
-      {item.status !== "SUCCESSED" && item.status !== "CONFIRMED" && (
+      {item.status == "DRAFT" && (
         <>
           <Pressable
             onPress={() => openEditForm(item)}
@@ -211,15 +231,21 @@ const CheckupManager = () => {
           >
             <Text style={styles.buttonText}>Send Confirm</Text>
           </Pressable>
-          {item.status !== "CONFIRMED" && (
-            <Pressable
-              onPress={() => handleDelete(item)}
-              style={styles.buttonGray}
-            >
-              <Text style={styles.buttonText}>Delete</Text>
-            </Pressable>
-          )}
+          <Pressable
+            onPress={() => handleDelete(item)}
+            style={styles.buttonGray}
+          >
+            <Text style={styles.buttonText}>Delete</Text>
+          </Pressable>
         </>
+      )}
+      {item.status == "CONFIRMED" && (
+        <Pressable
+          onPress={() => dispatch(patchManagerEndMedicalCheckup(item.id))}
+          style={styles.buttonRed}
+        >
+          <Text style={styles.buttonText}>End Event</Text>
+        </Pressable>
       )}
     </View>
   );
@@ -264,133 +290,169 @@ const CheckupManager = () => {
         renderItem={renderItem}
       />
 
-      {isEditing && (
-        <ScrollView style={{ padding: 10 }}>
-          <Text style={styles.modalTitle}>Update Checkup</Text>
-          <TextInput
-            placeholder="Checkup name"
-            value={checkupName}
-            onChangeText={setCheckupName}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Description"
-            value={checkupDescription}
-            onChangeText={setCheckupDescription}
-            style={styles.input}
-          />
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
-            style={styles.input}
-          >
-            <Text>{dayjs(checkupDate).format("YYYY-MM-DD")}</Text>
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={checkupDate}
-              mode="date"
-              display="default"
-              onChange={(e, selectedDate) => {
-                setShowDatePicker(false);
-                if (selectedDate) setCheckupDate(selectedDate);
-              }}
+      <Modal visible={isEditing} animationType="slide">
+        <SafeAreaView style={{ flex: 1 }}>
+          <ScrollView style={{ padding: 16 }}>
+            <Text style={styles.modalTitle}>Update Checkup</Text>
+
+            <TextInput
+              placeholder="Checkup name"
+              value={checkupName}
+              onChangeText={setCheckupName}
+              style={styles.input}
             />
-          )}
+            <TextInput
+              placeholder="Description"
+              value={checkupDescription}
+              onChangeText={setCheckupDescription}
+              style={styles.input}
+            />
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              style={styles.input}
+            >
+              <Text>{dayjs(checkupDate).format("YYYY-MM-DD")}</Text>
+            </TouchableOpacity>
 
-          <Text style={{ fontWeight: "bold" }}>Target Type:</Text>
-          <View style={{ flexDirection: "row", gap: 10, marginTop: 5 }}>
-            {["school", "class", "grade"].map((type) => (
-              <TouchableOpacity
-                key={type}
-                onPress={() => {
-                  setTargetType(type);
-                  setSelectedClasses([]);
-                  setSelectedGrades([]);
+            {showDatePicker && (
+              <DateTimePicker
+                value={checkupDate}
+                mode="date"
+                display="default"
+                onChange={(e, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) setCheckupDate(selectedDate);
                 }}
-                style={{
-                  padding: 6,
-                  borderWidth: 1,
-                  borderColor: targetType === type ? "#1890ff" : "#ccc",
-                  borderRadius: 6,
-                }}
+              />
+            )}
+
+            <Text style={{ fontWeight: "bold" }}>Target Type:</Text>
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 5 }}>
+              {["school", "class", "grade"].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  onPress={() => {
+                    setTargetType(type);
+                    setSelectedClasses([]);
+                    setSelectedGrades([]);
+                  }}
+                  style={{
+                    padding: 6,
+                    borderWidth: 1,
+                    borderColor: targetType === type ? "#1890ff" : "#ccc",
+                    borderRadius: 6,
+                    marginRight: 6,
+                  }}
+                >
+                  <Text>{type.toUpperCase()}</Text>
+                </TouchableOpacity>
+              ))}
+              {targetType === "school" && (
+                <Text
+                  style={{
+                    marginBottom: 12,
+                    fontStyle: "italic",
+                    color: "green",
+                  }}
+                >
+                  Total students in school: {totalStudents}
+                </Text>
+              )}
+            </View>
+
+            {targetType === "class" && (
+              <View style={{ marginTop: 10 }}>
+                <Text style={{ fontWeight: "bold" }}>Select Classes:</Text>
+                {classList.map((cls) => (
+                  <TouchableOpacity
+                    key={cls.id}
+                    onPress={() =>
+                      setSelectedClasses((prev) =>
+                        prev.includes(cls.name)
+                          ? prev.filter((c) => c !== cls.name)
+                          : [...prev, cls.name]
+                      )
+                    }
+                    style={{
+                      padding: 6,
+                      backgroundColor: selectedClasses.includes(cls.name)
+                        ? "#cce5ff"
+                        : "#f1f1f1",
+                      marginVertical: 3,
+                      borderRadius: 5,
+                    }}
+                  >
+                    <Text>{cls.name}</Text>
+                  </TouchableOpacity>
+                ))}
+                {selectedClasses.length > 0 && (
+                  <Text
+                    style={{
+                      marginTop: 8,
+                      fontStyle: "italic",
+                      color: "green",
+                    }}
+                  >
+                    Total selected students: {totalStudents}
+                  </Text>
+                )}
+              </View>
+            )}
+
+            {targetType === "grade" && (
+              <View style={{ marginTop: 10 }}>
+                <Text style={{ fontWeight: "bold" }}>Select Grades:</Text>
+                {[10, 11, 12].map((grade) => (
+                  <TouchableOpacity
+                    key={grade}
+                    onPress={() =>
+                      setSelectedGrades((prev) =>
+                        prev.includes(grade)
+                          ? prev.filter((g) => g !== grade)
+                          : [...prev, grade]
+                      )
+                    }
+                    style={{
+                      padding: 6,
+                      backgroundColor: selectedGrades.includes(grade)
+                        ? "#cce5ff"
+                        : "#f1f1f1",
+                      marginVertical: 3,
+                      borderRadius: 5,
+                    }}
+                  >
+                    <Text>Grade {grade}</Text>
+                  </TouchableOpacity>
+                ))}
+                {selectedGrades.length > 0 && (
+                  <Text
+                    style={{
+                      marginTop: 8,
+                      fontStyle: "italic",
+                      color: "green",
+                    }}
+                  >
+                    Total selected students: {totalStudents}
+                  </Text>
+                )}
+              </View>
+            )}
+
+            <View style={{ marginTop: 20 }}>
+              <Button mode="contained" onPress={handleUpdateSubmit}>
+                Update
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={() => setIsEditing(false)}
+                style={{ marginTop: 10 }}
               >
-                <Text>{type.toUpperCase()}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {targetType === "class" && (
-            <View style={{ marginTop: 10 }}>
-              <Text style={{ fontWeight: "bold" }}>Select Classes:</Text>
-              {classList.map((cls) => (
-                <TouchableOpacity
-                  key={cls.id}
-                  onPress={() =>
-                    setSelectedClasses((prev) =>
-                      prev.includes(cls.name)
-                        ? prev.filter((c) => c !== cls.name)
-                        : [...prev, cls.name]
-                    )
-                  }
-                  style={{
-                    padding: 6,
-                    backgroundColor: selectedClasses.includes(cls.name)
-                      ? "#cce5ff"
-                      : "#f1f1f1",
-                    marginVertical: 3,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Text>{cls.name}</Text>
-                </TouchableOpacity>
-              ))}
+                Cancel
+              </Button>
             </View>
-          )}
-
-          {targetType === "grade" && (
-            <View style={{ marginTop: 10 }}>
-              <Text style={{ fontWeight: "bold" }}>Select Grades:</Text>
-              {[10, 11, 12].map((grade) => (
-                <TouchableOpacity
-                  key={grade}
-                  onPress={() =>
-                    setSelectedGrades((prev) =>
-                      prev.includes(grade)
-                        ? prev.filter((g) => g !== grade)
-                        : [...prev, grade]
-                    )
-                  }
-                  style={{
-                    padding: 6,
-                    backgroundColor: selectedGrades.includes(grade)
-                      ? "#cce5ff"
-                      : "#f1f1f1",
-                    marginVertical: 3,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Text>Grade {grade}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          <Button
-            mode="contained"
-            onPress={handleUpdateSubmit}
-            style={{ marginTop: 20 }}
-          >
-            Update
-          </Button>
-          <Button
-            mode="outlined"
-            onPress={() => setIsEditing(false)}
-            style={{ marginTop: 10 }}
-          >
-            Cancel
-          </Button>
-        </ScrollView>
-      )}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -422,6 +484,12 @@ const styles = StyleSheet.create({
     width: "25%",
     alignItems: "flex-end",
     paddingRight: 10,
+  },
+  buttonRed: {
+    marginTop: 8,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: "#d32f2f",
   },
   banner: {
     width: "100%",

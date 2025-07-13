@@ -15,6 +15,7 @@ import {
   fetchVaccineManagerFail,
   fetchVaccineManagerSuccess,
 } from "../getAllVaccineManager/getAllVaccineManagerSlice";
+import Toast from "react-native-toast-message";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -36,6 +37,12 @@ function* updateVaccineManagerSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(putManagerSucessMedical(response.data));
+
+      Toast.show({
+        type: "success",
+        text1: "Cập nhật thành công",
+        text2: "Thông tin Vaccine đã được cập nhật ",
+      });
       const fetchData = yield call(
         axios.get,
         `${API_URL}/manager/v1/vaccinationEvent`,
@@ -62,6 +69,11 @@ function* updateVaccineManagerSaga(action) {
       error?.response?.data?.message || error.message || "Unknown error";
     yield put(putMangerFailMedical(errMsg));
     console.log(error);
+    Toast.show({
+      type: "error",
+      text1: "Cập nhật thất bại",
+      text2: errorMessage,
+    });
   }
 }
 

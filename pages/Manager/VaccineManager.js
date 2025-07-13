@@ -31,6 +31,8 @@ import dayjs from "dayjs";
 import { fetchClassManager } from "../../redux/manager/ClassManager/getAllClassManagerSlice";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { putManagerMedical } from "../../redux/manager/UpdataVaccineManager/updateVaccineManagerSlice";
+import { Modal } from "react-native";
+import { fetchTotalStudent } from "../../redux/manager/GetTotalStudent/getTotalStudentSlice";
 
 const VaccineManager = () => {
   const dispatch = useDispatch();
@@ -50,7 +52,7 @@ const VaccineManager = () => {
   const [selectedGrades, setSelectedGrades] = useState([]);
 
   const classList = useSelector(
-    (state) => state.getClassManager.classManager.data || []
+    (state) => state.getClassManager?.classManager?.data || []
   );
   useEffect(() => {
     dispatch(fetchClassManager());
@@ -102,7 +104,7 @@ const VaccineManager = () => {
   };
 
   const { vaccineManager, loading, error } = useSelector(
-    (state) => state.vaccineManager
+    (state) => state?.vaccineManager
   );
 
   useEffect(() => {
@@ -136,6 +138,24 @@ const VaccineManager = () => {
     }
   }, [vaccineManager]);
 
+  const totalStudents = useSelector(
+    (state) => state.getTotalStudent?.totalStudents ?? 0
+  );
+
+  useEffect(() => {
+    if (targetType === "school") {
+      dispatch(fetchTotalStudent({ targetType: "SCHOOL", targetIds: [] }));
+    } else if (targetType === "class" && selectedClasses.length > 0) {
+      const classIds = classList
+        .filter((cls) => selectedClasses.includes(cls.name))
+        .map((cls) => String(cls.id));
+
+      dispatch(fetchTotalStudent({ targetType: "CLASS", targetIds: classIds }));
+    } else if (targetType === "grade" && selectedGrades.length > 0) {
+      const gradeIds = selectedGrades.map(String);
+      dispatch(fetchTotalStudent({ targetType: "GRADE", targetIds: gradeIds }));
+    }
+  }, [targetType, selectedClasses, selectedGrades]);
   const handleLogout = () => {
     dispatch(logout());
     nav.navigate("Login");
@@ -172,6 +192,7 @@ const VaccineManager = () => {
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
+        <Text style={styles.cardTitle}>{item.name}</Text>
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>📌 Status: </Text>
           <Text
@@ -192,8 +213,6 @@ const VaccineManager = () => {
             {item.status}
           </Text>
         </View>
-
-        <Text style={styles.cardTitle}>{item.name}</Text>
 
         <Text style={styles.dateText}>
           📅 Date: <Text style={{ color: "#444" }}>{item.date}</Text>
@@ -222,15 +241,8 @@ const VaccineManager = () => {
         )}
       </View>
 
-      {item.status !== "SUCCESSED" && (
+      {item.status == "DRAFT" && (
         <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            onPress={() => dispatch(patchManagerVaccine(item.id))}
-            style={styles.actionButtonRed}
-          >
-            <Text style={styles.actionButtonText}>End Event</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
             onPress={() => handleSendConfirm(item)}
             style={styles.actionButtonBlue}
@@ -239,21 +251,26 @@ const VaccineManager = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
+            onPress={() => handleDelete(item)}
+            style={styles.actionButtonGray}
+          >
+            <Text style={styles.actionButtonText}>Delete</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => openEditForm(item)}
             style={styles.actionButtonOrange}
           >
             <Text style={styles.actionButtonText}>Update</Text>
           </TouchableOpacity>
-
-          {item.status !== "CONFIRMED" && (
-            <TouchableOpacity
-              onPress={() => handleDelete(item)}
-              style={styles.actionButtonGray}
-            >
-              <Text style={styles.actionButtonText}>Delete</Text>
-            </TouchableOpacity>
-          )}
         </View>
+      )}
+      {item.status == "CONFIRMED" && (
+        <TouchableOpacity
+          onPress={() => dispatch(patchManagerVaccine(item.id))}
+          style={styles.actionButtonRed}
+        >
+          <Text style={styles.actionButtonText}>End Event</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -307,132 +324,174 @@ const VaccineManager = () => {
           contentContainerStyle={styles.container}
           renderItem={renderItem}
         />
-        {isEditing && (
-          <ScrollView style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Update Vaccination</Text>
-            <TextInput
-              placeholder="Vaccine name"
-              value={vaccineName}
-              onChangeText={setVaccineName}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Description"
-              value={vaccineDescription}
-              onChangeText={setVaccineDescription}
-              style={styles.input}
-            />
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              style={styles.input}
-            >
-              <Text>{dayjs(vaccineDate).format("YYYY-MM-DD")}</Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-              <DateTimePicker
-                value={vaccineDate}
-                mode="date"
-                display="default"
-                onChange={(e, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) setVaccineDate(selectedDate);
-                }}
-              />
-            )}
+        <Modal visible={isEditing} animationType="slide">
+          <SafeAreaView style={{ flex: 1 }}>
+            <ScrollView style={{ padding: 16 }}>
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}
+              >
+                Update Vaccination
+              </Text>
 
-            <View style={{ marginVertical: 10 }}>
-              <Text style={{ fontWeight: "bold" }}>Target Type:</Text>
-              <View style={{ flexDirection: "row", gap: 10, marginTop: 5 }}>
-                {["school", "class", "grade"].map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    onPress={() => {
-                      setTargetType(type);
-                      setSelectedClasses([]);
-                      setSelectedGrades([]);
-                    }}
+              <TextInput
+                placeholder="Vaccine name"
+                value={vaccineName}
+                onChangeText={setVaccineName}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Description"
+                value={vaccineDescription}
+                onChangeText={setVaccineDescription}
+                style={styles.input}
+              />
+
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={styles.input}
+              >
+                <Text>{dayjs(vaccineDate).format("YYYY-MM-DD")}</Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={vaccineDate}
+                  mode="date"
+                  display="default"
+                  onChange={(e, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) setVaccineDate(selectedDate);
+                  }}
+                />
+              )}
+
+              {/* Target Type Selection */}
+              <View style={{ marginVertical: 10 }}>
+                <Text style={{ fontWeight: "bold" }}>Target Type:</Text>
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 5 }}>
+                  {["school", "class", "grade"].map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => {
+                        setTargetType(type);
+                        setSelectedClasses([]);
+                        setSelectedGrades([]);
+                      }}
+                      style={{
+                        padding: 6,
+                        borderWidth: 1,
+                        borderColor: targetType === type ? "#1890ff" : "#ccc",
+                        borderRadius: 6,
+                      }}
+                    >
+                      <Text>{type.toUpperCase()}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {targetType === "school" && (
+                  <Text
                     style={{
-                      padding: 6,
-                      borderWidth: 1,
-                      borderColor: targetType === type ? "#1890ff" : "#ccc",
-                      borderRadius: 6,
+                      marginBottom: 12,
+                      fontStyle: "italic",
+                      color: "green",
                     }}
                   >
-                    <Text>{type.toUpperCase()}</Text>
-                  </TouchableOpacity>
-                ))}
+                    Total students in school: {totalStudents}
+                  </Text>
+                )}
+                {targetType === "class" && (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontWeight: "bold" }}>Select Classes:</Text>
+                    {classList.map((cls) => (
+                      <TouchableOpacity
+                        key={cls.id}
+                        onPress={() =>
+                          setSelectedClasses((prev) =>
+                            prev.includes(cls.name)
+                              ? prev.filter((c) => c !== cls.name)
+                              : [...prev, cls.name]
+                          )
+                        }
+                        style={{
+                          padding: 6,
+                          backgroundColor: selectedClasses.includes(cls.name)
+                            ? "#cce5ff"
+                            : "#f1f1f1",
+                          marginVertical: 3,
+                          borderRadius: 5,
+                        }}
+                      >
+                        <Text>{cls.name}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+                {selectedClasses.length > 0 && (
+                  <Text
+                    style={{
+                      marginTop: 8,
+                      fontStyle: "italic",
+                      color: "green",
+                    }}
+                  >
+                    Total selected students: {totalStudents}
+                  </Text>
+                )}
+                {targetType === "grade" && (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontWeight: "bold" }}>Select Grades:</Text>
+                    {[10, 11, 12].map((grade) => (
+                      <TouchableOpacity
+                        key={grade}
+                        onPress={() =>
+                          setSelectedGrades((prev) =>
+                            prev.includes(grade)
+                              ? prev.filter((g) => g !== grade)
+                              : [...prev, grade]
+                          )
+                        }
+                        style={{
+                          padding: 6,
+                          backgroundColor: selectedGrades.includes(grade)
+                            ? "#cce5ff"
+                            : "#f1f1f1",
+                          marginVertical: 3,
+                          borderRadius: 5,
+                        }}
+                      >
+                        <Text>Grade {grade}</Text>
+                      </TouchableOpacity>
+                    ))}
+                    {selectedGrades.length > 0 && (
+                      <Text
+                        style={{
+                          marginTop: 8,
+                          fontStyle: "italic",
+                          color: "green",
+                        }}
+                      >
+                        Total selected students: {totalStudents}
+                      </Text>
+                    )}
+                  </View>
+                )}
               </View>
-              {targetType === "class" && (
-                <View style={{ marginVertical: 10 }}>
-                  <Text style={{ fontWeight: "bold" }}>Select Classes:</Text>
-                  {classList.map((cls) => (
-                    <TouchableOpacity
-                      key={cls.id}
-                      onPress={() =>
-                        setSelectedClasses((prev) =>
-                          prev.includes(cls.name)
-                            ? prev.filter((c) => c !== cls.name)
-                            : [...prev, cls.name]
-                        )
-                      }
-                      style={{
-                        padding: 6,
-                        backgroundColor: selectedClasses.includes(cls.name)
-                          ? "#cce5ff"
-                          : "#f1f1f1",
-                        marginVertical: 3,
-                        borderRadius: 5,
-                      }}
-                    >
-                      <Text>{cls.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
 
-              {targetType === "grade" && (
-                <View style={{ marginVertical: 10 }}>
-                  <Text style={{ fontWeight: "bold" }}>Select Grades:</Text>
-                  {[10, 11, 12].map((grade) => (
-                    <TouchableOpacity
-                      key={grade}
-                      onPress={() =>
-                        setSelectedGrades((prev) =>
-                          prev.includes(grade)
-                            ? prev.filter((g) => g !== grade)
-                            : [...prev, grade]
-                        )
-                      }
-                      style={{
-                        padding: 6,
-                        backgroundColor: selectedGrades.includes(grade)
-                          ? "#cce5ff"
-                          : "#f1f1f1",
-                        marginVertical: 3,
-                        borderRadius: 5,
-                      }}
-                    >
-                      <Text>Grade {grade}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-            <View style={{ marginTop: 20 }}>
-              <Button
-                mode="contained"
-                onPress={handleUpdateSubmit}
-                style={{ marginBottom: 10 }}
-              >
-                Update
-              </Button>
-
-              <Button mode="outlined" onPress={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-            </View>
-          </ScrollView>
-        )}
+              {/* Action Buttons */}
+              <View style={{ marginTop: 20 }}>
+                <Button
+                  mode="contained"
+                  onPress={handleUpdateSubmit}
+                  style={{ marginBottom: 10 }}
+                >
+                  Update
+                </Button>
+                <Button mode="outlined" onPress={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+              </View>
+            </ScrollView>
+          </SafeAreaView>
+        </Modal>
       </SafeAreaView>
     </>
   );
@@ -488,7 +547,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     flexDirection: "column",
     justifyContent: "space-between",
-    height: 350,
+    height: 330,
   },
   buttonGroup: {
     flexDirection: "row",

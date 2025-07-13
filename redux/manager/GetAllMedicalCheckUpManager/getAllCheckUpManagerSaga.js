@@ -23,6 +23,7 @@ function* getAllCheckUpManagerSaga() {
 
     if (response.status === 200 || response.status === 201) {
       yield put(fetchCheckupManagerSuccess(response.data));
+      console.log("fetchSuccess", response.data);
     } else {
       yield put(
         fetchCheckupManagerFail({ message: `Status: ${response.status}` })

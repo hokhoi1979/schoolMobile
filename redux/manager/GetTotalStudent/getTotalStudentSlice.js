@@ -32,7 +32,7 @@ const getTotalStudentSlice = (state = initialState, action) => {
       return { ...state, loading: true, error: null };
 
     case FETCH__TOTAL__STUDENT__SC:
-      console.log("🔥 Reducer nhận được total:", action.payload);
+      console.log("Reducer nhận được total:", action.payload);
       return { ...state, loading: false, totalStudents: action.payload };
     case FETCH__TOTAL__STUDENT__FL:
       return { ...state, loading: false, error: action.payload };

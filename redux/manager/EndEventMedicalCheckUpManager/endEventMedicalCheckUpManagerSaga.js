@@ -33,7 +33,10 @@ function* patchEndMedicalCheckupManagerSaga(action) {
 
     if (response.status === 200 || response.status === 201) {
       yield put(patchManagerSuccessEndMedicalCheckup(response.data));
-      Toast.success("End Event Success");
+      Toast.show({
+        type: "success",
+        text1: "End Event Success",
+      });
 
       const fetch = yield call(axios.get, `${API_URL}/manager/v1/check-up`, {
         headers: {
@@ -53,9 +56,13 @@ function* patchEndMedicalCheckupManagerSaga(action) {
   } catch (error) {
     const errorMessage =
       error?.response?.data?.message || error?.message || "Đã có lỗi xảy ra";
-    Toast.error(`End MedicalCheckup Fail: ${errorMessage}`);
     yield put(patchManagerFailEndMedicalCheckup(errorMessage));
     console.error("Create Vaccine Error:", error);
+    Toast.show({
+      type: "error",
+      text1: "End Event Fail",
+      text2: errorMessage,
+    });
   }
 }
 

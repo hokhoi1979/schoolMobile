@@ -12,6 +12,21 @@ import postCheckupDetailResultReducer from "./nurse/checkup/sendCheckupDetailRes
 import fetchCheckupDetailResultReducer from "./nurse/checkup/checkupDetailResult/checkupDetailResultSlice";
 import checkupResultReducer from "./nurse/checkup/fetchCheckupResult/resultCheckupSlice";
 import sendCheckupParentReducer from "./nurse/checkup/sendCheckupResult/sendCheckupParentSlice";
+import getClassManagerReducer from "./manager/ClassManager/getAllClassManagerSlice";
+import patchManagerConfirmCheckupReducer from "./manager/ConfirmMedicalCheckupManager/confirmMedicalCheckupManagerSlice";
+import patchManagerConfirmVaccineReducer from "./manager/ConfirmVaccineManager/ConfirmVaccineManagerSlice";
+import managerPostVaccineReducer from "./manager/CreateVaccineManager/createVaccineManagerSlice";
+import deleteMedicalCheckupManagerReducer from "./manager/DeleteMedicalCheckupManager/deleteMedicalCheckupManagerSlice";
+import managerDeleteVaccineReducer from "./manager/DeleteVaccineEvent/deleteVaccineEventSlice";
+import endEventMedicalCheckUpManagerReducer from "./manager/EndEventMedicalCheckUpManager/endEventMedicalCheckUpManagerSlice";
+import getAllCheckupManagerReducer from "./manager/GetAllMedicalCheckUpManager/getAllCheckUpManagerSlice";
+import vaccineManagerReducer from "./manager/getAllVaccineManager/getAllVaccineManagerSlice";
+import getMedicineSupplyManagerReducer from "./manager/GetMedicineAndSupplyManager/getMedicineAndSupplyManagerSlice";
+import getTotalStudentSlice from "./manager/GetTotalStudent/getTotalStudentSlice";
+import managerCheckupReducer from "./manager/PostCheckUpManager/postCheckUpManagerSlice";
+import patchManagerVaccineReducer from "./manager/successVaccineManager/successVaccineManagerSlice";
+import managerUpdateMedicalReducer from "./manager/UpdataVaccineManager/updateVaccineManagerSlice";
+import managerUpdateMedicalCheckupReducer from "./manager/UpdateMedicalCheckupManager/updateMedicalCheckupManagerSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
 
@@ -28,5 +43,22 @@ const rootReducer = combineReducers({
   fetchCheckupDetailResult: fetchCheckupDetailResultReducer,
   checkupResult: checkupResultReducer,
   sendCheckupParent: sendCheckupParentReducer,
+
+  //Manager
+  getClassManager: getClassManagerReducer,
+  patchManagerConfirmCheckup: patchManagerConfirmCheckupReducer,
+  patchManagerConfirmVaccine: patchManagerConfirmVaccineReducer,
+  managerPostVaccine: managerPostVaccineReducer,
+  deleteMedicalCheckupManager: deleteMedicalCheckupManagerReducer,
+  managerDeleteVaccine: managerDeleteVaccineReducer,
+  endEventMedicalCheckUpManager: endEventMedicalCheckUpManagerReducer,
+  getAllCheckupManager: getAllCheckupManagerReducer,
+  vaccineManager: vaccineManagerReducer,
+  getMedicineSupplyManager: getMedicineSupplyManagerReducer,
+  getTotalStudent: getTotalStudentSlice,
+  managerCheckup: managerCheckupReducer,
+  patchManagerVaccine: patchManagerVaccineReducer,
+  managerUpdateMedical: managerUpdateMedicalReducer,
+  managerUpdateMedicalCheckup: managerUpdateMedicalCheckupReducer,
 });
 export default rootReducer;
