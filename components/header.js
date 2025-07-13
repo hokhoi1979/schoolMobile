@@ -1,17 +1,37 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable, Alert } from "react-native";
 import React from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import logo from "../assets/logo.png";
 import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { logout } from "../redux/auth/authSlice";
+
 export default function Header({ title }) {
   const dispatch = useDispatch();
   const nav = useNavigation();
+
   const handleLogout = () => {
-    dispatch(logout());
-    nav.navigate("Login");
+    Alert.alert(
+      "Confirm logout",
+      "Do you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: () => {
+            dispatch(logout());
+            nav.navigate("Login");
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
+
   return (
     <View
       style={{
@@ -45,6 +65,7 @@ export default function Header({ title }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   header: {
     fontSize: 20,
