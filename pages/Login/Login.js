@@ -95,14 +95,14 @@ export default function Login() {
         </View>
 
         <View style={styles.container}>
-          <Pressable
+          {/* <Pressable
             style={styles.backButton}
             onPress={() => {
               if (navigation.canGoBack()) navigation.goBack();
             }}
           >
             <Ionicons name="arrow-back" size={18} color="black" />
-          </Pressable>
+          </Pressable> */}
 
           <Text style={styles.title}>Login Page</Text>
           <Text style={styles.subtitle}>
@@ -155,12 +155,6 @@ export default function Login() {
 
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginText}>Login</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Text style={styles.registerText}>
-              You don't have account? Register now!
-            </Text>
           </TouchableOpacity>
         </View>
 

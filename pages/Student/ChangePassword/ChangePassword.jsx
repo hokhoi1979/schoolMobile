@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import studentApi from "../../../apis/student/studentApi";
+import Header from "../../../components/header";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -74,95 +76,102 @@ const ChangePassword = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>🔐 Đổi mật khẩu</Text>
+    <SafeAreaView>
+      <Header title={"Change Password"} />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>🔐 Đổi mật khẩu</Text>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>ℹ️ Thông tin quan trọng</Text>
-        <Text style={styles.infoText}>
-          Sau khi đổi mật khẩu thành công, bạn cần dùng mật khẩu mới để đăng
-          nhập lần sau.
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>ℹ️ Thông tin quan trọng</Text>
+          <Text style={styles.infoText}>
+            Sau khi đổi mật khẩu thành công, bạn cần dùng mật khẩu mới để đăng
+            nhập lần sau.
+          </Text>
+        </View>
+
+        {/* Current password */}
+        <Text style={styles.label}>
+          <Text style={styles.required}>* </Text>Mật khẩu hiện tại
         </Text>
-      </View>
-
-      {/* Current password */}
-      <Text style={styles.label}>
-        <Text style={styles.required}>* </Text>Mật khẩu hiện tại
-      </Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          secureTextEntry={!showCurrent}
-          placeholder="Nhập mật khẩu hiện tại"
-          style={styles.input}
-        />
-        <TouchableOpacity onPress={() => setShowCurrent(!showCurrent)}>
-          <Ionicons
-            name={showCurrent ? "eye-off" : "eye"}
-            size={20}
-            color="#888"
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            secureTextEntry={!showCurrent}
+            placeholder="Nhập mật khẩu hiện tại"
+            style={styles.input}
           />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={() => setShowCurrent(!showCurrent)}>
+            <Ionicons
+              name={showCurrent ? "eye-off" : "eye"}
+              size={20}
+              color="#888"
+            />
+          </TouchableOpacity>
+        </View>
 
-      {/* New password */}
-      <Text style={styles.label}>Mật khẩu mới</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry={!showNew}
-          placeholder="Nhập mật khẩu mới"
-          style={styles.input}
-        />
-        <TouchableOpacity onPress={() => setShowNew(!showNew)}>
-          <Ionicons name={showNew ? "eye-off" : "eye"} size={20} color="#888" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Confirm password */}
-      <Text style={styles.label}>Xác nhận mật khẩu</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry={!showConfirm}
-          placeholder="Nhập lại mật khẩu mới"
-          style={styles.input}
-        />
-        <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
-          <Ionicons
-            name={showConfirm ? "eye-off" : "eye"}
-            size={20}
-            color="#888"
+        {/* New password */}
+        <Text style={styles.label}>Mật khẩu mới</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={newPassword}
+            onChangeText={setNewPassword}
+            secureTextEntry={!showNew}
+            placeholder="Nhập mật khẩu mới"
+            style={styles.input}
           />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={() => setShowNew(!showNew)}>
+            <Ionicons
+              name={showNew ? "eye-off" : "eye"}
+              size={20}
+              color="#888"
+            />
+          </TouchableOpacity>
+        </View>
 
-      {/* Buttons */}
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
-          <Text style={styles.resetText}>Làm mới</Text>
-        </TouchableOpacity>
+        {/* Confirm password */}
+        <Text style={styles.label}>Xác nhận mật khẩu</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={!showConfirm}
+            placeholder="Nhập lại mật khẩu mới"
+            style={styles.input}
+          />
+          <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
+            <Ionicons
+              name={showConfirm ? "eye-off" : "eye"}
+              size={20}
+              color="#888"
+            />
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
-          style={styles.changeBtn}
-          onPress={handleChangePassword}
-        >
-          <Text style={styles.changeText}>Đổi mật khẩu</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        {/* Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
+            <Text style={styles.resetText}>Làm mới</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.changeBtn}
+            onPress={handleChangePassword}
+          >
+            <Text style={styles.changeText}>Đổi mật khẩu</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#F7F9FC",
     flexGrow: 1,
-    marginTop: 50
+    marginTop: 20,
   },
   title: {
     fontSize: 22,
@@ -221,7 +230,6 @@ const styles = StyleSheet.create({
   resetText: {
     color: "#ffff",
     fontWeight: "500",
-
   },
   changeBtn: {
     flex: 1,

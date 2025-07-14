@@ -15,6 +15,8 @@ import studentApi from "../../../apis/student/studentApi";
 // Icon
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import LichSuScreen from "../../../components/Student/LichSuScreen";
+import Header from "../../../components/header";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const StudentProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -55,71 +57,73 @@ const StudentProfile = () => {
   }
 
   return (
-    <FlatList
-      data={[]} // dummy data
-      keyExtractor={() => "dummy"}
-      renderItem={null}
-      ListHeaderComponent={
-        <>
-          <Card style={styles.card}>
-            <Card.Title
-              title={profile.account.fullname}
-              subtitle={`Lớp: ${profile.lastAcamedicYear.class.name}`}
-              left={(props) => (
-                <Avatar.Image
-                  {...props}
-                  source={require("../../../assets/bgBottom.jpg")} // hoặc null nếu không có avatar
-                  size={48}
+    <SafeAreaView>
+      <Header title={"Student Profile"}/>
+      <FlatList
+        data={[]} // dummy data
+        keyExtractor={() => "dummy"}
+        renderItem={null}
+        ListHeaderComponent={
+          <>
+            <Card style={styles.card}>
+              <Card.Title
+                title={profile.account.fullname}
+                subtitle={`Lớp: ${profile.lastAcamedicYear.class.name}`}
+                left={(props) => (
+                  <Avatar.Image
+                    {...props}
+                    source={require("../../../assets/bgBottom.jpg")} // hoặc null nếu không có avatar
+                    size={48}
+                  />
+                )}
+              />
+              <Card.Content>
+                <Divider style={styles.divider} />
+                <Text style={styles.sectionTitle}>🎓 Thông tin học sinh</Text>
+
+                <InfoItem label="Họ tên" value={profile.account.fullname} />
+                <InfoItem label="Email" value={profile.account.email} />
+                <InfoItem
+                  label="Ngày sinh"
+                  value={moment(profile.dateOfBirth).format("DD/MM/YYYY")}
                 />
-              )}
-            />
-            <Card.Content>
-              <Divider style={styles.divider} />
-              <Text style={styles.sectionTitle}>🎓 Thông tin học sinh</Text>
+                <InfoItem label="Giới tính" value={profile.gender} />
+                <InfoItem label="Mã học sinh" value={profile.student_code} />
+                <InfoItem
+                  label="Đã tốt nghiệp"
+                  value={profile.graduated ? "✅ Có" : "❌ Chưa"}
+                />
 
-              <InfoItem label="Họ tên" value={profile.account.fullname} />
-              <InfoItem label="Email" value={profile.account.email} />
-              <InfoItem
-                label="Ngày sinh"
-                value={moment(profile.dateOfBirth).format("DD/MM/YYYY")}
-              />
-              <InfoItem label="Giới tính" value={profile.gender} />
-              <InfoItem label="Mã học sinh" value={profile.student_code} />
-              <InfoItem
-                label="Đã tốt nghiệp"
-                value={profile.graduated ? "✅ Có" : "❌ Chưa"}
-              />
+                <Divider style={styles.divider} />
+                <Text style={styles.sectionTitle}>👨‍👩‍👧 Phụ huynh</Text>
 
-              <Divider style={styles.divider} />
-              <Text style={styles.sectionTitle}>👨‍👩‍👧 Phụ huynh</Text>
+                <InfoItem
+                  label="Họ tên phụ huynh"
+                  value={profile.ParentInfo.fullname}
+                />
+                <InfoItem
+                  label="Email phụ huynh"
+                  value={profile.ParentInfo.email}
+                />
+                <InfoItem
+                  label="SĐT phụ huynh"
+                  value={profile.ParentInfo.phone}
+                />
 
-              <InfoItem
-                label="Họ tên phụ huynh"
-                value={profile.ParentInfo.fullname}
-              />
-              <InfoItem
-                label="Email phụ huynh"
-                value={profile.ParentInfo.email}
-              />
-              <InfoItem
-                label="SĐT phụ huynh"
-                value={profile.ParentInfo.phone}
-              />
-
-              <Divider style={styles.divider} />
-            </Card.Content>
-          </Card>
-          <View
-            style={{
-              minHeight: 300,
-        
-            }}
-          >
-            <LichSuScreen profile={profile} />
-          </View>
-        </>
-      }
-    />
+                <Divider style={styles.divider} />
+              </Card.Content>
+            </Card>
+            <View
+              style={{
+                minHeight: 300,
+              }}
+            >
+              <LichSuScreen profile={profile} />
+            </View>
+          </>
+        }
+      />
+    </SafeAreaView>
   );
 };
 
@@ -132,7 +136,7 @@ const InfoItem = ({ label, value }) => (
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    // marginTop: 50,
     padding: 16,
     backgroundColor: "#F7F9FC",
   },
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   card: {
-    marginTop: 50,
+    marginTop: 20,
     borderRadius: 16,
     paddingBottom: 20,
     elevation: 4,
@@ -182,7 +186,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: "right",
   },
-  
 });
 
 export default StudentProfile;

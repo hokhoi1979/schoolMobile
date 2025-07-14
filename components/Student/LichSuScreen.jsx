@@ -284,7 +284,6 @@ const Dungthuoc = ({ medicalEventHistoty }) => {
 
 export default function LichSuScreen(props) {
   const { profile } = props;
-  console.log(profile);
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "kham", title: "Khám bệnh" },
