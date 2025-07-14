@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -18,6 +18,10 @@ import CheckUpParent from "../pages/Parent/CheckUp/CheckUpParent";
 import VaccineResultDetail from "../pages/Parent/Vaccine/VaccineResultDetail";
 import CheckUpDetailScreen from "../pages/Parent/CheckUp/CheckUpDetailScreen";
 import CheckUpResultScreen from "../pages/Parent/CheckUp/CheckUpResultScreen";
+
+// 🧑‍🎓 Student Screens
+import Profile from "../pages/Student/Profile/Profile";
+import ChangePassword from "../pages/Student/ChangePassword/ChangePassword";
 // 👨‍💼 Manager, 👨‍👩‍👧‍👦 Parent, 🧑‍🎓 Student Screen
 
 // import ManagerMain from "../pages/Manager/ManagerMain"; // Tạo file này
@@ -91,6 +95,24 @@ const ParentTabs = () => (
   </Tab.Navigator>
 );
 
+const StudentTabs = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ color, size }) => {
+        if (route.name === "Profile")
+          return <AntDesign name="profile" size={24} color="black" />;
+        else if (route.name === "ChangePassword")
+          return <MaterialCommunityIcons name="lock-reset" size={24} color="black" />;
+      },
+    })}
+  >
+     <Tab.Screen name="Profile" component={Profile} />
+    <Tab.Screen name="ChangePassword" component={ChangePassword} />
+
+  </Tab.Navigator>
+);
+
 const AppNavigation = () => {
   const { user } = useSelector((state) => state.account);
 
@@ -116,13 +138,10 @@ const AppNavigation = () => {
             <Stack.Screen name="ManagerMain" component={ManagerTabs} />
           )}
 
-          {/*     {user?.roleID === 4 && (
-            <Stack.Screen name="ParentMain" component={ParentMain} />
+ {user?.roleID === 5 && (
+            <Stack.Screen name="StudentMain" component={StudentTabs} />
           )}
->>>>>>> 53dbef7c4b33e0353308a88ef6f7d6f52ed80280
-          {user?.roleID === 5 && (
-            <Stack.Screen name="StudentMain" component={StudentMain} />
-          )} */}
+
           {user?.roleID === 4 && (
             <>
               <Stack.Screen name="ParentMain" component={ParentTabs} />
