@@ -4,12 +4,18 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
 // 👩‍⚕️ Nurse Screens
 import VaccineNurse from "../pages/Nurse/Vaccine/VaccineNurse";
 import MedicalNurse from "../pages/Nurse/Medical/MedicalNurse";
+
+// 🧑‍🎓 Student Screens
+import Profile from "../pages/Student/Profile/Profile";
+import ChangePassword from "../pages/Student/ChangePassword/ChangePassword";
 
 // 👨‍💼 Manager, 👨‍👩‍👧‍👦 Parent, 🧑‍🎓 Student Screens
 // import ManagerMain from "../pages/Manager/ManagerMain"; // Tạo file này
@@ -41,6 +47,30 @@ const NurseTabs = () => (
   </Tab.Navigator>
 );
 
+// 🩺 Tabs cho role Student
+const StudentTabs = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ color, size }) => {
+        if (route.name === "Profile")
+          return <AntDesign name="profile" size={24} color="black" />;
+        else if (route.name === "ChangePassword")
+          return (
+            <MaterialCommunityIcons
+              name="lock-reset"
+              size={24}
+              color="#007bff"
+            />
+          );
+      },
+    })}
+  >
+    <Tab.Screen name="Profile" component={Profile} />
+    <Tab.Screen name="ChangePassword" component={ChangePassword} />
+  </Tab.Navigator>
+);
+
 const AppNavigation = () => {
   const { user } = useSelector((state) => state.account);
 
@@ -63,10 +93,10 @@ const AppNavigation = () => {
           )}
           {user?.roleID === 4 && (
             <Stack.Screen name="ParentMain" component={ParentMain} />
-          )}
-          {user?.roleID === 5 && (
-            <Stack.Screen name="StudentMain" component={StudentMain} />
           )} */}
+          {user?.roleID === 5 && (
+            <Stack.Screen name="StudentMain" component={StudentTabs} />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />
